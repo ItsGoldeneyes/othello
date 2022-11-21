@@ -3,13 +3,13 @@ from othello import OthelloGame
 def main():
     game = OthelloGame()
     game.show()
-    player = 0
+    player = 1
     while not game.winner:
-        game.turn(player+1)
+        game.turn(player)
         game.show()
         
-        player = (player + 1)%2
+        player = (player%2)+1
     
-    
+
 if __name__ == "__main__": 
     main()

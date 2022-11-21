@@ -47,7 +47,6 @@ class OthelloGame():
                     pos_tuple = self.extract_pos(pos_input)
                 except ValueError as e:
                     print(e)
-                    
                 if pos_tuple:
                     valid = self.board.check_move(player, pos_tuple)
                     
@@ -64,17 +63,78 @@ class OthelloBoard():
         self.board[(size//2)-1][size//2] = 2
         self.board[size//2][(size//2)-1] = 2
     
+    
+    def __str__(self):
+        return_val = ""
+        add_val = ""
+        for line in self.board: #[::-1]:
+            for square in line:
+                if square == 0:
+                    add_val = '\u2218'
+                elif square == 1: 
+                    add_val = '\u2B24'
+                elif square == 2: 
+                    add_val = '\u25EF'
+                else:
+                    add_val = str(square)
+                    
+                return_val += " " + add_val
+            return_val += "\n"
+            
+        return return_val
+    
         
-    def move(self, player, pos):
-        assert type(pos) == tuple and len(pos) == 2, "Position must be tuple of length 2"
-        assert 0 <= pos[0] <= 7, "X position out of bounds (0<x<7)"
-        assert 0 <= pos[1] <= 7, "Y position out of bounds (0<x<7)"
+    def adjacent_spaces(self, pos, directional=False):
         
-        self.board[pos[0]][pos[1]] = player+1
+        n = pos[1] < len(self.board[0])-1
+        e = pos[0] < len(self.board[0])-1
+        s = pos[1] >= 0
+        w = pos[0] >= 0
         
+        if directional:
+            adjacent = {}
+            
+            if n:
+                adjacent["n"]= (pos[0], pos[1]+1)
+                if e:
+                    adjacent["ne"] = (pos[0]+1, pos[1]+1)
+                if w:
+                    adjacent["nw"] = (pos[0]-1, pos[1]+1)
+            if s:
+                adjacent["s"]= (pos[0], pos[1]-1)
+                if e:
+                    adjacent["se"] = (pos[0]+1, pos[1]-1)
+                if w:
+                    adjacent["sw"] = (pos[0]-1, pos[1]-1)
+            if e:
+                adjacent["e"]= (pos[0]+1, pos[1])
+            if w:
+                adjacent["w"]= (pos[0]-1, pos[1])
+
+        else:
+            adjacent = []
+            
+            if n:
+                adjacent.append((pos[0], pos[1]+1))
+                if e:
+                    adjacent.append((pos[0]+1, pos[1]+1))
+                if w:
+                    adjacent.append((pos[0]-1, pos[1]+1))
+            if s:
+                adjacent.append((pos[0], pos[1]-1))
+                if e:
+                    adjacent.append((pos[0]+1, pos[1]-1))
+                if w:
+                    adjacent.append((pos[0]-1, pos[1]-1))
+            if e:
+                adjacent.append((pos[0]+1, pos[1]))
+            if w:
+                adjacent.append((pos[0]-1, pos[1]))
+                
+        return adjacent
+            
         
     def check_move(self, player, move):
-        print(move)
         if move[0] > 7 or move[0] < 0:
             print("X is out of bounds")
             return False
@@ -88,20 +148,8 @@ class OthelloBoard():
         
         adjacent_to_enemy = False
         
-        if move[0] <= len(self.board[0]):
-            if self.board[move[0]+1][move[1]] == ((player+1)%2)+1:
-                adjacent_to_enemy = True
-                
-        if move[1] <= len(self.board[0]):
-            if self.board[move[0]][move[1]+1] == ((player+1)%2)+1:
-                adjacent_to_enemy = True
-                
-        if move[0] >= 0:
-            if self.board[move[0]-1][move[1]] == ((player+1)%2)+1:
-                adjacent_to_enemy = True
-                
-        if move[1] >= 0:
-            if self.board[move[0]][move[1]-1] == ((player+1)%2)+1:
+        for space in self.adjacent_spaces(move):
+            if self.board[space[0]][space[1]] == ((player%2)+1):
                 adjacent_to_enemy = True
         
         if not adjacent_to_enemy:
@@ -109,20 +157,47 @@ class OthelloBoard():
             return False
             
         return True
-        
-    def __str__(self):
-        return_val = ""
-        add_val = ""
-        for line in self.board[::-1]:
-            for square in line:
-                if square == 0:
-                    add_val = '\u2218'
-                elif square%2 == 1: 
-                    add_val = '\u25EF'
-                elif square%2 == 0: 
-                    add_val = '\u2B24'
-                    
-                return_val += " " + add_val
-            return_val += "\n"
+    
+    
+    def update_move(self, pos, player, dir):
+            '''
+            Recursive directional floodfill
+            Checks for spaces of enemy player until a friendly space is found
+            '''
+            print('--', pos)
+            if self.board[pos[0]][pos[1]] == 0:
+                return False
             
-        return return_val
+            if self.board[pos[0]][pos[1]] == player:
+                return True
+            
+            if self.board[pos[0]][pos[1]] == (player%2)+1:
+                adjacent = self.adjacent_spaces(pos, directional=True)
+                next_space = self.update_move(adjacent[dir], player, dir)
+                
+                if next_space:
+                    if isinstance(next_space, list):
+                        return [adjacent[dir]].extend(next_space)
+                    else:
+                        return [adjacent[dir]]
+                else:
+                    return False
+                
+            
+    
+    def move(self, player, pos):
+        assert type(pos) == tuple and len(pos) == 2, "Position must be tuple of length 2"
+        assert 0 <= pos[0] <= 7, "X position out of bounds (0<x<7)"
+        assert 0 <= pos[1] <= 7, "Y position out of bounds (0<x<7)"
+        
+        self.board[pos[0]][pos[1]] = player
+        
+        adjacent = self.adjacent_spaces(pos, directional=True)
+        for move in adjacent:
+            print(move, adjacent[move])
+            spaces = self.update_move(adjacent[move], player, move)
+            print('--', spaces)
+            if isinstance(spaces, list):
+                for space in spaces:
+                    self.board[space[0]][space[1]] = 3
+            
