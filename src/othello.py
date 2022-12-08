@@ -24,7 +24,7 @@ class OthelloGame():
         if second == None:
             raise ValueError("Input contains only one number")
         
-        return (int(second.group())-1, int(first.group())-1)
+        return (int(second.group()), int(first.group()))
         
         
     def turn(self, player, pos= False):
@@ -67,7 +67,7 @@ class OthelloBoard():
     def __str__(self):
         return_val = ""
         add_val = ""
-        for line in self.board: #[::-1]:
+        for line in self.board[::-1]:
             for square in line:
                 if square == 0:
                     add_val = '\u2218'
@@ -84,16 +84,14 @@ class OthelloBoard():
         return return_val
     
         
-    def adjacent_spaces(self, pos, directional=False):
-        
-        n = pos[1] < len(self.board[0])-1
-        e = pos[0] < len(self.board[0])-1
-        s = pos[1] >= 0
-        w = pos[0] >= 0
+    def adjacent_spaces(self, pos, directional=False):        
+        n = pos[1]+1 < len(self.board)
+        s = pos[1]-1 >= 0
+        e = pos[0]+1 < len(self.board)
+        w = pos[0]-1 >= 0
         
         if directional:
             adjacent = {}
-            
             if n:
                 adjacent["n"]= (pos[0], pos[1]+1)
                 if e:
@@ -113,7 +111,6 @@ class OthelloBoard():
 
         else:
             adjacent = []
-            
             if n:
                 adjacent.append((pos[0], pos[1]+1))
                 if e:
@@ -159,30 +156,37 @@ class OthelloBoard():
         return True
     
     
-    def update_move(self, pos, player, dir):
-            '''
-            Recursive directional floodfill
-            Checks for spaces of enemy player until a friendly space is found
-            '''
-            print('--', pos)
-            if self.board[pos[0]][pos[1]] == 0:
+    def floodfill(self, move, player, direction, count=0, test=False):
+        '''
+        Recursive directional floodfill
+        Starts at source move, checks adjacent spaces in direction until a friendly space is found
+        Returns a list of enemy spaces between source and friendly space
+        '''
+        if test:
+            print('\n')
+            print(move)
+            print(self.board[move[0]][move[1]])
+            print('count: ', count)
+        
+        if self.board[move[0]][move[1]] == 0:
+            return False
+        
+        if self.board[move[0]][move[1]] == player and count > 0:
+            return True
+        
+        if self.board[move[0]][move[1]] == (player%2)+1:
+            adjacent = self.adjacent_spaces(move, directional=True)
+            count += 1
+            next_space = self.floodfill(adjacent[direction], player, direction, count)
+            
+            if next_space:
+                if type(next_space) == list:
+                    return [move].extend(next_space)
+                return [move]
+            else:
                 return False
-            
-            if self.board[pos[0]][pos[1]] == player:
-                return True
-            
-            if self.board[pos[0]][pos[1]] == (player%2)+1:
-                adjacent = self.adjacent_spaces(pos, directional=True)
-                next_space = self.update_move(adjacent[dir], player, dir)
-                
-                if next_space:
-                    if isinstance(next_space, list):
-                        return [adjacent[dir]].extend(next_space)
-                    else:
-                        return [adjacent[dir]]
-                else:
-                    return False
-                
+        
+        return False
             
     
     def move(self, player, pos):
@@ -195,9 +199,10 @@ class OthelloBoard():
         adjacent = self.adjacent_spaces(pos, directional=True)
         for move in adjacent:
             print(move, adjacent[move])
-            spaces = self.update_move(adjacent[move], player, move)
-            print('--', spaces)
-            if isinstance(spaces, list):
-                for space in spaces:
-                    self.board[space[0]][space[1]] = 3
+            print(self.board[adjacent[move][0]][adjacent[move][1]])
+            # spaces = self.update_move(adjacent[move], player, move)
+            # print('--', spaces)
+            # if isinstance(spaces, list):
+            #     for space in spaces:
+            #         self.board[space[0]][space[1]] = 3
             
