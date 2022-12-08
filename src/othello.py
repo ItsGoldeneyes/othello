@@ -1,19 +1,18 @@
-
 import re
 
 class OthelloGame():
     def __init__(self):
-        self.winner = False
         self.board = OthelloBoard()
-     
+        self.winner = False
+        
         
     def show(self):
         print(self.board)
-    
+        
     
     def extract_pos(self, pos_str):
         '''
-        Get position from input + flip so orients correctly
+        Get position from input using regex
         '''
         
         first = re.search(r"\d", pos_str)
@@ -24,8 +23,8 @@ class OthelloGame():
         if second == None:
             raise ValueError("Input contains only one number")
         
-        return (int(second.group()), int(first.group()))
-        
+        return (int(first.group()), int(second.group()))
+    
         
     def turn(self, player, pos= False):
         assert player == 1 or player == 2
@@ -35,8 +34,7 @@ class OthelloGame():
                 return False
             else:
                 self.board.move(player, pos)
-            # Logic to check move
-            # return True
+                return True
         else:
             valid = False
             while not valid:
@@ -51,19 +49,24 @@ class OthelloGame():
                     valid = self.board.check_move(player, pos_tuple)
                     
             self.board.move(player, pos_tuple)
-                
+            return True
+            
+        if self.board.check_winner():
+            if type(self.board.check_winner()) != int:
+                print('Game is a draw!')
+            print('Player {self.board.check_winner()} has won!')
+            self.winner = True
     
     
 class OthelloBoard():
     def __init__(self, size=8):
-        self.directions = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']
         self.board = [[0 for __ in range(size)] for _ in range(size)]
         
         self.board[size//2][size//2] = 1
         self.board[(size//2)-1][(size//2)-1] = 1
         self.board[(size//2)-1][size//2] = 2
         self.board[size//2][(size//2)-1] = 2
-    
+        
     
     def __str__(self):
         return_val = ""
@@ -84,7 +87,7 @@ class OthelloBoard():
             
         return return_val
     
-        
+    
     def adjacent_spaces(self, pos, directional=False):        
         n = pos[1]+1 < len(self.board)
         s = pos[1]-1 >= 0
@@ -130,7 +133,48 @@ class OthelloBoard():
                 adjacent.append((pos[0]-1, pos[1]))
                 
         return adjacent
+    
+    
+    def floodfill(self, move, player, direction, count=0, test=False):
+        '''
+        Recursive directional floodfill
+        Starts at source move, checks adjacent spaces in direction until a friendly space is found
+        Returns a list of enemy spaces between source and friendly space
+        '''
+        if test:
+            print('\n')
+            print(direction)
+            print(move)
+            print(self.board[move[0]][move[1]])
+            print('count: ', count)
+            print('enemy space?',self.board[move[0]][move[1]] == (player%2)+1)
+        
+        if self.board[move[0]][move[1]] == 0:
+            return False
+        
+        if self.board[move[0]][move[1]] == player and count > 0:
+            return True
+        
+        if self.board[move[0]][move[1]] == (player%2)+1:
+            adjacent = self.adjacent_spaces(move, directional=True)
             
+            if direction not in adjacent:
+                # Out of bounds
+                return False
+            
+            count += 1
+            next_space = self.floodfill(adjacent[direction], player, direction, count)
+            if test:
+                print(next_space)
+            if next_space:
+                if type(next_space) == list:
+                    return [move].extend(next_space)
+                return [move]
+            else:
+                return False
+        
+        return False
+    
         
     def check_move(self, player, move):
         if move[0] > 7 or move[0] < 0:
@@ -146,8 +190,7 @@ class OthelloBoard():
         
         captures_enemy = False
         adjacent = self.adjacent_spaces(move, directional=True)
-        
-        for direction in self.directions:
+        for direction in adjacent:
             if self.floodfill(adjacent[direction], player, direction):            
                 captures_enemy = True
                 break
@@ -159,39 +202,19 @@ class OthelloBoard():
         return True
     
     
-    def floodfill(self, move, player, direction, count=0, test=False):
-        '''
-        Recursive directional floodfill
-        Starts at source move, checks adjacent spaces in direction until a friendly space is found
-        Returns a list of enemy spaces between source and friendly space
-        '''
-        if test:
-            print('\n')
-            print(direction)
-            print(move)
-            print(self.board[move[0]][move[1]])
-            print('count: ', count)
-        
-        if self.board[move[0]][move[1]] == 0:
+    def check_winner(self):
+        if any(0 in row for row in self.board):
             return False
         
-        if self.board[move[0]][move[1]] == player and count > 0:
+        player_1_count = sum(row.count(1) for row in self.board)
+        player_2_count = sum(row.count(2) for row in self.board)
+        
+        if player_1_count > player_2_count:
+            return 1
+        elif player_2_count > player_1_count:
+            return 2
+        else:
             return True
-        
-        if self.board[move[0]][move[1]] == (player%2)+1:
-            adjacent = self.adjacent_spaces(move, directional=True)
-            count += 1
-            next_space = self.floodfill(adjacent[direction], player, direction, count)
-            
-            if next_space:
-                if type(next_space) == list:
-                    return [move].extend(next_space)
-                return [move]
-            else:
-                return False
-        
-        return False
-            
     
     def move(self, player, move):
         assert type(move) == tuple and len(move) == 2, "Position must be tuple of length 2"
@@ -203,7 +226,7 @@ class OthelloBoard():
         adjacent = self.adjacent_spaces(move, directional=True)
         flipped = []
         
-        for direction in self.directions:
+        for direction in adjacent:
             potential_flipped = self.floodfill(adjacent[direction], player, direction)
             if potential_flipped:
                 flipped.extend(potential_flipped)

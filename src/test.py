@@ -230,25 +230,43 @@ class BoardFloodfillTest(unittest.TestCase):
         # Assert
         self.assertEqual(expected_floodfill, result_floodfill)
         
-# def run_tests():
-#     # Run only the tests in the specified classes
-
-#     test_classes_to_run = [BoardDefaultTest, BoardAdjacentTest, BoardFloodfillTest]
-
-#     loader = unittest.TestLoader()
-
-#     suites_list = []
-#     for test_class in test_classes_to_run:
-#         suite = loader.loadTestsFromTestCase(test_class)
-#         suites_list.append(suite)
         
-#     big_suite = unittest.TestSuite(suites_list)
+    def test_floodfill_player_1_complex(self):
+        # Arrange
+        self.board.move(1, (4,2))
+        self.board.move(2, (5,2))
+        
+        orig_pos = (3, 5)
+        direction = 's'
+        test_pos = self.board.adjacent_spaces(orig_pos, directional=True)[direction]
+        expected_floodfill = [(3,4)]
 
-#     runner = unittest.TextTestRunner()
-#     results = runner.run(big_suite)
+        # Act
+        result_floodfill = self.board.floodfill(test_pos, 1, direction)
 
-# if __name__ == "__main__":
-#     run_tests()
+        # Assert
+        self.assertEqual(expected_floodfill, result_floodfill)
+        
+        
+def run_tests():
+    # Run only the tests in the specified classes
 
-if __name__ == '__main__':
-    unittest.main()
+    test_classes_to_run = [BoardFloodfillTest] # [BoardDefaultTest, BoardAdjacentTest, BoardFloodfillTest]
+
+    loader = unittest.TestLoader()
+
+    suites_list = []
+    for test_class in test_classes_to_run:
+        suite = loader.loadTestsFromTestCase(test_class)
+        suites_list.append(suite)
+        
+    big_suite = unittest.TestSuite(suites_list)
+
+    runner = unittest.TextTestRunner()
+    results = runner.run(big_suite)
+
+if __name__ == "__main__":
+    run_tests()
+
+# if __name__ == '__main__':
+#     unittest.main()
