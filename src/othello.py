@@ -56,6 +56,7 @@ class OthelloGame():
     
 class OthelloBoard():
     def __init__(self, size=8):
+        self.directions = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']
         self.board = [[0 for __ in range(size)] for _ in range(size)]
         
         self.board[size//2][size//2] = 1
@@ -143,14 +144,16 @@ class OthelloBoard():
             print("space is taken")
             return False
         
-        adjacent_to_enemy = False
+        captures_enemy = False
+        adjacent = self.adjacent_spaces(move, directional=True)
         
-        for space in self.adjacent_spaces(move):
-            if self.board[space[0]][space[1]] == ((player%2)+1):
-                adjacent_to_enemy = True
+        for direction in self.directions:
+            if self.floodfill(adjacent[direction], player, direction):            
+                captures_enemy = True
+                break
         
-        if not adjacent_to_enemy:
-            print("Not adjacent to enemy")
+        if not captures_enemy:
+            print("Not capturing enemy")
             return False
             
         return True
@@ -164,6 +167,7 @@ class OthelloBoard():
         '''
         if test:
             print('\n')
+            print(direction)
             print(move)
             print(self.board[move[0]][move[1]])
             print('count: ', count)
@@ -189,20 +193,20 @@ class OthelloBoard():
         return False
             
     
-    def move(self, player, pos):
-        assert type(pos) == tuple and len(pos) == 2, "Position must be tuple of length 2"
-        assert 0 <= pos[0] <= 7, "X position out of bounds (0<x<7)"
-        assert 0 <= pos[1] <= 7, "Y position out of bounds (0<x<7)"
+    def move(self, player, move):
+        assert type(move) == tuple and len(move) == 2, "Position must be tuple of length 2"
+        assert 0 <= move[0] <= 7, "X position out of bounds (0<x<7)"
+        assert 0 <= move[1] <= 7, "Y position out of bounds (0<x<7)"
         
-        self.board[pos[0]][pos[1]] = player
+        self.board[move[0]][move[1]] = player
         
-        adjacent = self.adjacent_spaces(pos, directional=True)
-        for move in adjacent:
-            print(move, adjacent[move])
-            print(self.board[adjacent[move][0]][adjacent[move][1]])
-            # spaces = self.update_move(adjacent[move], player, move)
-            # print('--', spaces)
-            # if isinstance(spaces, list):
-            #     for space in spaces:
-            #         self.board[space[0]][space[1]] = 3
-            
+        adjacent = self.adjacent_spaces(move, directional=True)
+        flipped = []
+        
+        for direction in self.directions:
+            potential_flipped = self.floodfill(adjacent[direction], player, direction)
+            if potential_flipped:
+                flipped.extend(potential_flipped)
+                
+        for space in flipped:
+            self.board[space[0]][space[1]] = player

@@ -37,7 +37,6 @@ class BoardDefaultTest(unittest.TestCase):
         self.assertEqual(self.board.board[4][3], 2)
         self.assertEqual(self.board.board[3][4], 2)
         
-        
 class BoardAdjacentTest(unittest.TestCase):
     def setUp(self):
         self.board = OthelloBoard()
