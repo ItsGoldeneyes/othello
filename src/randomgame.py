@@ -15,7 +15,7 @@ def main():
         while not game.turn(player, move):
             
             print(move, end=' ')
-            time.sleep(0.05)
+            # time.sleep(0.05)
             
             move = (random.randint(0,7), random.randint(0,7))
             tried_moves.append(move)
@@ -28,7 +28,7 @@ def main():
         moves_done.append(move)
         print('\n', end='')
         game.show()
-        time.sleep(0.5)
+        # time.sleep(0.5)
         player = (player%2)+1
 if __name__ == "__main__": 
     main()

@@ -5,12 +5,13 @@ class OthelloGame():
     def __init__(self):
         self.board = OthelloBoard()
         self.winner = False
-        
-        
+        self.stalemate_timer = 0
+
+
     def show(self):
         print(self.board)
-        
-    
+
+
     def extract_pos(self, pos_str):
         '''
         Get position from input using regex
@@ -28,7 +29,24 @@ class OthelloGame():
     
         
     def turn(self, player, pos= False):
+        '''
+        Takes a turn for a given player
+        If pos is given, it will attempt to move there, otherwise it will ask for input
+        '''
         assert player == 1 or player == 2
+        
+        if self.board.check_stalemate(player):
+            self.stalemate_timer += 1
+            print(f'stalemate timer {self.stalemate_timer}')
+            
+            if self.stalemate_timer >= 2:
+                self.winner = True
+                print("Game is a draw!")
+                
+            return True
+        
+        # If not stalemate, reset timer
+        self.stalemate_timer = 0
         
         if pos:
             if not self.board.check_move(player, pos):
@@ -52,17 +70,21 @@ class OthelloGame():
             self.board.move(player, pos_tuple)
             
         if self.board.check_winner():
-            if type(self.board.check_winner()) != int:
+            if type(self.board.check_winner()) == int:
+                print(f'\nPlayer {self.board.winner} has won!')
+                self.winner = self.board.winner
+            else:
+                self.winner = True
                 print('Game is a draw!')
-            print(f'Player {self.board.check_winner()} has won!')
-            self.winner = True
-        
+                
+            
         return True
     
     
 class OthelloBoard():
     def __init__(self, size=8):
         self.board = [[0 for __ in range(size)] for _ in range(size)]
+        self.winner = False
         
         self.board[size//2][size//2] = 1
         self.board[(size//2)-1][(size//2)-1] = 1
@@ -71,6 +93,9 @@ class OthelloBoard():
         
     
     def __str__(self):
+        '''
+        Returns a formatted string representation of the board for printing
+        '''
         return_val = ""
         add_val = ""
         for line in self.board[::-1]:
@@ -90,7 +115,11 @@ class OthelloBoard():
         return return_val
     
     
-    def adjacent_spaces(self, pos, directional=False):        
+    def adjacent_spaces(self, pos, directional=False):
+        '''
+        Returns a list of adjacent spaces to a given position
+        If directional is True, returns a dictionary of adjacent spaces with their direction
+        '''
         n = pos[0]+1 < len(self.board)
         s = pos[0]-1 >= 0
         e = pos[1]+1 < len(self.board)
@@ -178,6 +207,10 @@ class OthelloBoard():
     
         
     def check_move(self, player, move):
+        '''
+        Check if a move is valid
+        Returns True if valid, False if invalid
+        '''
         if move[0] > 7 or move[0] < 0:
             # print("X is out of bounds")
             return False
@@ -204,6 +237,10 @@ class OthelloBoard():
     
     
     def check_winner(self):
+        '''
+        Checks if there are any empty spaces, if not, checks the number of pieces each player has
+        Returns the winner, or True if it's a draw
+        '''
         if any(0 in row for row in self.board):
             return False
         
@@ -211,13 +248,46 @@ class OthelloBoard():
         player_2_count = sum(row.count(2) for row in self.board)
         
         if player_1_count > player_2_count:
+            self.winner = 1
             return 1
         elif player_2_count > player_1_count:
+            self.winner = 2
             return 2
         else:
+            self.winner = True
             return True
+        
+    
+    def check_stalemate(self, player):
+        '''
+        Checks possible moves of player and returns True if none are available
+        '''
+        player_moves = self.get_possible_moves(player)
+        
+        if len(player_moves) > 0:
+            return False
+        
+        return True
+        
+        
+        
+    def get_possible_moves(self, player):
+        '''
+        Check floodfill spaces of all possible moves
+        Can filter by edge pieces if inefficient
+        '''
+        
+        possible_moves = []
+        for x in range(len(self.board)):
+            for y in range(len(self.board)):
+                if self.check_move(player, (x,y)):
+                    possible_moves.append((x,y))
+        return possible_moves
     
     def move(self, player, move):
+        '''
+        Puts player piece on move, captures enemy pieces
+        '''
         assert type(move) == tuple and len(move) == 2, "Position must be tuple of length 2"
         assert 0 <= move[0] <= 7, "X position out of bounds (0<x<7)"
         assert 0 <= move[1] <= 7, "Y position out of bounds (0<x<7)"
