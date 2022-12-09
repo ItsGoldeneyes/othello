@@ -41,6 +41,14 @@ class OthelloGame():
         print(output)
         return output
         
+    
+    def get_fitness(self):
+        '''
+        Returns information about the game for fitness function to use
+        p1_count, p2_count, p1_flipped, p2_flipped
+        '''
+        return (self.board.count_pieces(1), self.board.count_pieces(2), self.board.get_flipped_count(1), self.board.get_flipped_count(2))
+    
         
     def turn(self, player, pos= False):
         '''
@@ -105,6 +113,9 @@ class OthelloBoard():
         self.board = [[0 for __ in range(size)] for _ in range(size)]
         self.winner = False
         self.debug = debug
+        self.player_1_flipped = 0
+        self.player_2_flipped = 0
+        
         
         self.board[size//2][size//2] = 1
         self.board[(size//2)-1][(size//2)-1] = 1
@@ -137,7 +148,14 @@ class OthelloBoard():
     
     def get_board(self):
         return self.board
+        
     
+    def get_flipped_count(self, player):
+        if player == 1:
+            return self.player_1_flipped
+        elif player == 2:
+            return self.player_2_flipped
+               
     
     def adjacent_spaces(self, pos, directional=False):
         '''
@@ -227,9 +245,9 @@ class OthelloBoard():
         
         if type(next_space) == list:
             return_val.extend(next_space)
-        return return_val        
-        
-        
+        return return_val
+    
+    
     def count_pieces(self, player):
         '''
         Returns the number of pieces a player has on the board
@@ -343,6 +361,11 @@ class OthelloBoard():
             potential_flipped = self.floodfill(adjacent[direction], player, direction)
             if potential_flipped:
                 flipped.extend(potential_flipped)
-                
+            
         for space in flipped:
             self.board[space[0]][space[1]] = player
+        
+        if player == 1:
+            self.player_1_flipped += len(flipped)
+        elif player == 2:
+            self.player_2_flipped += len(flipped)

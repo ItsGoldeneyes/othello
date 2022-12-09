@@ -35,31 +35,49 @@ class Othello:
         
         start_time = time.time()
         
-        game = OthelloGame(debug=True)
+        game = OthelloGame(debug=False)
         # game.show()
         player = 1
-        
+        fail_timer = 0
         while not game.winner:
-            time.sleep(0.1)
+            # time.sleep(0.1)
             if player == 1:
                 output = net1.activate(tuple([(player)]+game.get_info()))
                 decision = self.bucket_output(output)
-                print(decision)
-                game.turn(player, decision)
+                # print(decision)
+                turn_result = game.turn(player, decision)
             else:
                 output = net2.activate(tuple([player]+game.get_info()))
                 decision = self.bucket_output(output)
-                print(decision)
+                # print(decision)
                 
-                game.turn(player, decision)
+                turn_result = game.turn(player, decision)
+                
+            if turn_result == False:
+                fail_timer += 1
+            else:
+                fail_timer = 0
+                
+            if fail_timer >= 2:
+                break
         
             player = (player%2)+1
-            game.show()
+            # game.show()
         
-    
+        self.calculate_fitness(genome1, genome2, game.get_fitness())
          
-    def calculate_fitness(self, genome1, genome2):
-        pass
+    def calculate_fitness(self, genome1, genome2, fitness):
+        if fitness[0] < 3:
+            genome1.fitness -= 0.1
+            
+        if fitness[1] < 3:
+            genome1.fitness -= 0.1
+        
+        genome1.fitness += fitness[0]//4
+        genome1.fitness += fitness[2]//2
+        genome2.fitness += fitness[1]//4
+        genome2.fitness += fitness[3]//2
+        
 
 def eval_genomes(genomes, config):
     for i, (genome_id1, genome1) in enumerate(genomes):
@@ -79,7 +97,7 @@ def run_neat(config):
     p.add_reporter(stats)
     p.add_reporter(neat.Checkpointer(1))
 
-    winner = p.run(eval_genomes, 1) #50
+    winner = p.run(eval_genomes, 50) #50
     with open("best.pickle", "wb") as f:
         pickle.dump(winner, f)
 
