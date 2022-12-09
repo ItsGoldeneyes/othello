@@ -66,15 +66,15 @@ class Othello:
          
     def calculate_fitness(self, genome1, genome2, fitness):
         if fitness[0] < 3:
-            genome1.fitness -= 0.1
+            genome1.fitness -= 1
             
         if fitness[1] < 3:
-            genome1.fitness -= 0.1
+            genome1.fitness -= 1
         
-        genome1.fitness += fitness[0]//4
-        genome1.fitness += fitness[2]//2
-        genome2.fitness += fitness[1]//4
-        genome2.fitness += fitness[3]//2
+        genome1.fitness += fitness[0]/10
+        genome1.fitness += fitness[2]/10
+        genome2.fitness += fitness[1]/2
+        genome2.fitness += fitness[3]/2
         
 
 def eval_genomes(genomes, config):
