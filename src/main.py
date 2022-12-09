@@ -73,8 +73,8 @@ class Othello:
         
         genome1.fitness += fitness[0]/10
         genome1.fitness += fitness[2]/10
-        genome2.fitness += fitness[1]/2
-        genome2.fitness += fitness[3]/2
+        genome2.fitness += fitness[1]/5
+        genome2.fitness += fitness[3]/5
         
 
 def eval_genomes(genomes, config):
