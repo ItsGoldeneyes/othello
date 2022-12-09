@@ -31,9 +31,7 @@ class Othello:
         net1 = neat.nn.FeedForwardNetwork.create(genome1, config)
         net2 = neat.nn.FeedForwardNetwork.create(genome2, config)
         self.genome1 = genome1
-        self.genome2 = genome2        
-        
-        start_time = time.time()
+        self.genome2 = genome2
         
         game = OthelloGame(debug=False)
         # game.show()

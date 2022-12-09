@@ -38,7 +38,6 @@ class OthelloGame():
             for space in line:
                 output.append(space)
                 
-        print(output)
         return output
         
     
