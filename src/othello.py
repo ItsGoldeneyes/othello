@@ -2,10 +2,11 @@ import logging
 import re
 
 class OthelloGame():
-    def __init__(self):
-        self.board = OthelloBoard()
+    def __init__(self, debug=False):
+        self.board = OthelloBoard(debug=debug)
         self.winner = False
         self.stalemate_timer = 0
+        self.debug = debug
 
 
     def show(self):
@@ -27,6 +28,19 @@ class OthelloGame():
         
         return (int(first.group()), int(second.group()))
     
+    
+    def get_info(self):
+        '''
+        Returns information about the game for NEAT to use
+        '''
+        output = []
+        for line in self.board.get_board():
+            for space in line:
+                output.append(space)
+                
+        print(output)
+        return output
+        
         
     def turn(self, player, pos= False):
         '''
@@ -37,11 +51,11 @@ class OthelloGame():
         
         if self.board.check_stalemate(player):
             self.stalemate_timer += 1
-            print(f'stalemate timer {self.stalemate_timer}')
             
             if self.stalemate_timer >= 2:
                 self.winner = True
-                print("Game is a draw!")
+                if self.debug:
+                    print("Game is a stalemate!")
                 
             return True
         
@@ -71,20 +85,26 @@ class OthelloGame():
             
         if self.board.check_winner():
             if type(self.board.check_winner()) == int:
-                print(f'\nPlayer {self.board.winner} has won!')
+                if self.debug:
+                    print(f'\nPlayer {self.board.winner} has won!')
                 self.winner = self.board.winner
             else:
                 self.winner = True
-                print('Game is a draw!')
+                if self.debug:
+                    print('Game is a draw!')
+                    
+        if self.debug:
+            self.show()
                 
             
         return True
     
     
 class OthelloBoard():
-    def __init__(self, size=8):
+    def __init__(self, size=8, debug=False):
         self.board = [[0 for __ in range(size)] for _ in range(size)]
         self.winner = False
+        self.debug = debug
         
         self.board[size//2][size//2] = 1
         self.board[(size//2)-1][(size//2)-1] = 1
@@ -113,6 +133,10 @@ class OthelloBoard():
             return_val += "\n"
             
         return return_val
+    
+    
+    def get_board(self):
+        return self.board
     
     
     def adjacent_spaces(self, pos, directional=False):
@@ -203,23 +227,54 @@ class OthelloBoard():
         
         if type(next_space) == list:
             return_val.extend(next_space)
-        return return_val
+        return return_val        
+        
+        
+    def count_pieces(self, player):
+        '''
+        Returns the number of pieces a player has on the board
+        '''
+        count = 0
+        for line in self.board:
+            for square in line:
+                if square == player:
+                    count += 1
+        return count
     
         
+    def get_possible_moves(self, player):
+        '''
+        Check floodfill spaces of all possible moves
+        Can filter by edge pieces if inefficient
+        '''
+        
+        possible_moves = []
+        for x in range(len(self.board)):
+            for y in range(len(self.board)):
+                self.debug = False
+                if self.check_move(player, (x,y)):
+                    possible_moves.append((x,y))
+                self.debug = True
+        return possible_moves
+    
+    
     def check_move(self, player, move):
         '''
         Check if a move is valid
         Returns True if valid, False if invalid
         '''
         if move[0] > 7 or move[0] < 0:
-            # print("X is out of bounds")
+            if self.debug:
+                print("X is out of bounds")
             return False
         if move[1] > 7 or move[1] < 0:
-            # print("Y is out of bounds")
+            if self.debug:
+                print("Y is out of bounds")
             return False
         
         if self.board[move[0]][move[1]] != 0:
-            # print("space is taken")
+            if self.debug:
+                print("space is taken")
             return False
         
         captures_enemy = False
@@ -230,7 +285,8 @@ class OthelloBoard():
                 break
         
         if not captures_enemy:
-            # print("Not capturing enemy")
+            if self.debug:
+                print("Not capturing enemy")
             return False
             
         return True
@@ -268,21 +324,7 @@ class OthelloBoard():
             return False
         
         return True
-        
-        
-        
-    def get_possible_moves(self, player):
-        '''
-        Check floodfill spaces of all possible moves
-        Can filter by edge pieces if inefficient
-        '''
-        
-        possible_moves = []
-        for x in range(len(self.board)):
-            for y in range(len(self.board)):
-                if self.check_move(player, (x,y)):
-                    possible_moves.append((x,y))
-        return possible_moves
+    
     
     def move(self, player, move):
         '''
