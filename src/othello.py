@@ -281,17 +281,17 @@ class OthelloBoard():
         Returns True if valid, False if invalid
         '''
         if move[0] > 7 or move[0] < 0:
-            if self.debug:
-                print("X is out of bounds")
+            # if self.debug:
+            #     print("X is out of bounds")
             return False
         if move[1] > 7 or move[1] < 0:
-            if self.debug:
-                print("Y is out of bounds")
+            # if self.debug:
+            #     print("Y is out of bounds")
             return False
         
         if self.board[move[0]][move[1]] != 0:
-            if self.debug:
-                print("space is taken")
+            # if self.debug:
+            #     print("space is taken")
             return False
         
         captures_enemy = False
@@ -302,8 +302,8 @@ class OthelloBoard():
                 break
         
         if not captures_enemy:
-            if self.debug:
-                print("Not capturing enemy")
+            # if self.debug:
+            #     print("Not capturing enemy")
             return False
             
         return True
