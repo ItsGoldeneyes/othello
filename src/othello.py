@@ -89,48 +89,48 @@ class OthelloBoard():
     
     
     def adjacent_spaces(self, pos, directional=False):        
-        n = pos[1]+1 < len(self.board)
-        s = pos[1]-1 >= 0
-        e = pos[0]+1 < len(self.board)
-        w = pos[0]-1 >= 0
+        n = pos[0]+1 < len(self.board)
+        s = pos[0]-1 >= 0
+        e = pos[1]+1 < len(self.board)
+        w = pos[1]-1 >= 0
         
         if directional:
             adjacent = {}
             if n:
-                adjacent["n"]= (pos[0], pos[1]+1)
+                adjacent["n"]= (pos[0]+1, pos[1])
                 if e:
                     adjacent["ne"] = (pos[0]+1, pos[1]+1)
                 if w:
-                    adjacent["nw"] = (pos[0]-1, pos[1]+1)
+                    adjacent["nw"] = (pos[0]+1, pos[1]-1)
             if s:
-                adjacent["s"]= (pos[0], pos[1]-1)
+                adjacent["s"]= (pos[0]-1, pos[1])
                 if e:
-                    adjacent["se"] = (pos[0]+1, pos[1]-1)
+                    adjacent["se"] = (pos[0]-1, pos[1]+1)
                 if w:
                     adjacent["sw"] = (pos[0]-1, pos[1]-1)
             if e:
-                adjacent["e"]= (pos[0]+1, pos[1])
+                adjacent["e"]= (pos[0], pos[1]+1)
             if w:
-                adjacent["w"]= (pos[0]-1, pos[1])
+                adjacent["w"]= (pos[0], pos[1]-1)
 
         else:
             adjacent = []
             if n:
-                adjacent.append((pos[0], pos[1]+1))
+                adjacent.append((pos[0]+1, pos[1]))
                 if e:
                     adjacent.append((pos[0]+1, pos[1]+1))
                 if w:
-                    adjacent.append((pos[0]-1, pos[1]+1))
-            if s:
-                adjacent.append((pos[0], pos[1]-1))
-                if e:
                     adjacent.append((pos[0]+1, pos[1]-1))
+            if s:
+                adjacent.append((pos[0]-1, pos[1]))
+                if e:
+                    adjacent.append((pos[0]-1, pos[1]+1))
                 if w:
                     adjacent.append((pos[0]-1, pos[1]-1))
             if e:
-                adjacent.append((pos[0]+1, pos[1]))
+                adjacent.append((pos[0], pos[1]+1))
             if w:
-                adjacent.append((pos[0]-1, pos[1]))
+                adjacent.append((pos[0], pos[1]-1))
                 
         return adjacent
     
@@ -143,9 +143,8 @@ class OthelloBoard():
         '''
         if test:
             print('\n')
-            print(direction)
-            print(move)
-            print(self.board[move[0]][move[1]])
+            print("direction: ", direction)
+            print(move,self.board[move[0]][move[1]])
             print('count: ', count)
             print('enemy space?',self.board[move[0]][move[1]] == (player%2)+1)
         
@@ -155,25 +154,25 @@ class OthelloBoard():
         if self.board[move[0]][move[1]] == player and count > 0:
             return True
         
-        if self.board[move[0]][move[1]] == (player%2)+1:
-            adjacent = self.adjacent_spaces(move, directional=True)
-            
-            if direction not in adjacent:
-                # Out of bounds
-                return False
-            
-            count += 1
-            next_space = self.floodfill(adjacent[direction], player, direction, count)
-            if test:
-                print(next_space)
-            if next_space:
-                if type(next_space) == list:
-                    return [move].extend(next_space)
-                return [move]
-            else:
-                return False
+        if self.board[move[0]][move[1]] != (player%2)+1:
+            return False
         
-        return False
+        adjacent = self.adjacent_spaces(move, directional=True)
+        
+        if direction not in adjacent:
+            # Out of bounds
+            return False
+        
+        count += 1
+        return_val = [move]
+        next_space = self.floodfill(adjacent[direction], player, direction, count)
+        
+        if not next_space:
+            return False
+        
+        if type(next_space) == list:
+            return_val.extend(next_space)
+        return return_val
     
         
     def check_move(self, player, move):
