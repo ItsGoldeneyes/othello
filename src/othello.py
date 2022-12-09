@@ -1,3 +1,4 @@
+import logging
 import re
 
 class OthelloGame():
@@ -34,7 +35,7 @@ class OthelloGame():
                 return False
             else:
                 self.board.move(player, pos)
-                return True
+                
         else:
             valid = False
             while not valid:
@@ -49,13 +50,14 @@ class OthelloGame():
                     valid = self.board.check_move(player, pos_tuple)
                     
             self.board.move(player, pos_tuple)
-            return True
             
         if self.board.check_winner():
             if type(self.board.check_winner()) != int:
                 print('Game is a draw!')
-            print('Player {self.board.check_winner()} has won!')
+            print(f'Player {self.board.check_winner()} has won!')
             self.winner = True
+        
+        return True
     
     
 class OthelloBoard():
@@ -177,14 +179,14 @@ class OthelloBoard():
         
     def check_move(self, player, move):
         if move[0] > 7 or move[0] < 0:
-            print("X is out of bounds")
+            # print("X is out of bounds")
             return False
         if move[1] > 7 or move[1] < 0:
-            print("Y is out of bounds")
+            # print("Y is out of bounds")
             return False
         
         if self.board[move[0]][move[1]] != 0:
-            print("space is taken")
+            # print("space is taken")
             return False
         
         captures_enemy = False
@@ -195,7 +197,7 @@ class OthelloBoard():
                 break
         
         if not captures_enemy:
-            print("Not capturing enemy")
+            # print("Not capturing enemy")
             return False
             
         return True
