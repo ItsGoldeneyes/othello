@@ -102,6 +102,15 @@ def run_neat(config):
     winner = p.run(eval_genomes, 50) #50
     with open("best.pickle", "wb") as f:
         pickle.dump(winner, f)
+        
+        
+def test_best_ai(config):
+    with open("best.pickle", "rb") as f:
+        winner = pickle.load(f)
+    net = neat.nn.FeedForwardNetwork.create(winner, config)
+    
+    game = Othello()
+    game.test_ai(net)
 
 if __name__ == "__main__":
     local_dir = os.path.dirname(__file__)
@@ -112,3 +121,4 @@ if __name__ == "__main__":
                          config_path)
     
     run_neat(config)
+    test_best_ai(config)
