@@ -44,9 +44,9 @@ class OthelloGame():
     def get_fitness(self):
         '''
         Returns information about the game for fitness function to use
-        p1_count, p2_count, p1_flipped, p2_flipped
+        p1_count, p2_count, p1_flipped, p2_flipped, winner
         '''
-        return (self.board.count_pieces(1), self.board.count_pieces(2), self.board.get_flipped_count(1), self.board.get_flipped_count(2))
+        return (self.board.count_pieces(1), self.board.count_pieces(2), self.board.get_flipped_count(1), self.board.get_flipped_count(2), self.winner)
     
         
     def turn(self, player, pos= False):
