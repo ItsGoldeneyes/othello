@@ -78,6 +78,7 @@ class Othello:
         
 
 def eval_genomes(genomes, config):
+    start_time = time.time()
     for i, (genome_id1, genome1) in enumerate(genomes):
         if i == len(genomes) - 1:
             break
@@ -87,6 +88,9 @@ def eval_genomes(genomes, config):
             
             game = Othello()
             game.train_ai(genome1, genome2, config)
+            
+    end_time = time.time()
+    print("Time taken: ", end_time - start_time)
             
 def run_neat(config):
     p = neat.Population(config)
