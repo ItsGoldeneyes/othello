@@ -17,7 +17,7 @@ survival_threshold = 0.2
 # node activation options
 activation_default      = sigmoid
 activation_mutate_rate  = 1.0
-activation_options      = sigmoid, relu, lelu, softplus, tanh
+activation_options      = sigmoid
 
 # node aggregation options
 aggregation_default     = sum
