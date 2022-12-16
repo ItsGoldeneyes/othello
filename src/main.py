@@ -78,7 +78,7 @@ class Othello:
             genome1.fitness -= 1
             
         if fitness[1] < 3:
-            genome1.fitness -= 1
+            genome2.fitness -= 1
         
         if type(fitness[4]) == int:
             if fitness[4] == 1:
@@ -90,12 +90,9 @@ class Othello:
             genome2.fitness += 2
         
         genome1.fitness += fitness[0]/10
-        genome1.fitness += fitness[2]/10
-        genome2.fitness += fitness[1]/5
+        genome1.fitness += fitness[2]/5
+        genome2.fitness += fitness[1]/10
         genome2.fitness += fitness[3]/5
-        
-        genome1.fitness += random.randint(1,5)/10
-        genome2.fitness += random.randint(1,5)/10
         
 
 def eval_genomes(genomes, config):
