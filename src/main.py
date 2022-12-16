@@ -1,4 +1,5 @@
 from othello import OthelloGame
+import numpy as np
 import random
 import pickle
 import time
@@ -20,7 +21,7 @@ class Othello:
             if player == 1:
                 game.turn(player)
             else:
-                output = net.activate(tuple([player]+game.get_info()))
+                output = net.activate(tuple(game.get_info()))
                 decision = self.bucket_output(output)
                 
                 game.turn(player, decision)
@@ -41,12 +42,19 @@ class Othello:
         while not game.winner:
             # time.sleep(0.1)
             if player == 1:
-                output = net1.activate(tuple([(player)]+game.get_info()))
+                
+                info = np.array(game.get_info())
+                ix=np.isin(info, [1,2])
+                vc=np.vectorize(lambda x: 1 if x == 2 else 1)
+                flipped_info = np.where(ix, vc(info), info)
+                info = flipped_info.tolist()
+                
+                output = net1.activate(tuple(info))
                 decision = self.bucket_output(output)
                 # print(decision)
                 turn_result = game.turn(player, decision)
             else:
-                output = net2.activate(tuple([player]+game.get_info()))
+                output = net2.activate(tuple(game.get_info()))
                 decision = self.bucket_output(output)
                 # print(decision)
                 
@@ -106,11 +114,18 @@ def eval_genomes(genomes, config):
     print("Time taken: ", end_time - start_time)
             
 def run_neat(config):
+    time_now = time.time()
+    print("neat pop")
     p = neat.Population(config)
+    time_post_neat= time.time()
+    print("neat pop time: ", time_post_neat - time_now)
+    print("add reporter")
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
     p.add_reporter(neat.Checkpointer(1))
+    
+    print("pre run")
 
     winner = p.run(eval_genomes, 50) #50
     with open("best.pickle", "wb") as f:
