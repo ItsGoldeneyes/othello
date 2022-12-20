@@ -1,115 +1,14 @@
-import logging
-import re
 
-class OthelloGame():
-    def __init__(self, debug=False):
-        self.board = OthelloBoard(debug=debug)
-        self.winner = False
-        self.stalemate_timer = 0
-        self.debug = debug
-
-
-    def show(self):
-        print(self.board)
-
-
-    def reset(self):
-        self.board = OthelloBoard(debug=self.debug)
-        self.winner = False
-        self.stalemate_timer = 0
-    
-    def extract_pos(self, pos_str):
-        '''
-        Get position from input using regex
-        '''
-        
-        first = re.search(r"\d", pos_str)
-        if first == None:
-            raise ValueError("Input contains no numbers")
-        
-        second = re.search(r"\d+", pos_str[first.start()+1:])
-        if second == None:
-            raise ValueError("Input contains only one number")
-        
-        return (int(first.group()), int(second.group()))
-    
-    
-    def get_info(self):
-        '''
-        Returns information about the game for NEAT to use
-        '''
-        output = []
-        for line in self.board.get_board():
-            for space in line:
-                output.append(space)
-                
-        return output
-        
-            
-    def turn(self, player, pos= False):
-        '''
-        Takes a turn for a given player
-        If pos is given, it will attempt to move there, otherwise it will ask for input
-        '''
-        assert player == 1 or player == 2
-        
-        if self.board.check_stalemate(player):
-            self.stalemate_timer += 1
-            
-            if self.stalemate_timer >= 2:
-                self.winner = True
-                if self.debug:
-                    print("Game is a stalemate!")
-                
-            return True
-        
-        # If not stalemate, reset timer
-        self.stalemate_timer = 0
-        
-        if pos:
-            if not self.board.check_move(player, pos):
-                return False
-            else:
-                self.board.move(player, pos)
-                
-        else:
-            valid = False
-            while not valid:
-                pos_input = input(f"Where would player {player} like to move?")
-                pos_tuple = False
-                
-                try: 
-                    pos_tuple = self.extract_pos(pos_input)
-                except ValueError as e:
-                    print(e)
-                if pos_tuple:
-                    valid = self.board.check_move(player, pos_tuple)
-                    
-            self.board.move(player, pos_tuple)
-            
-        if self.board.check_winner():
-            if type(self.board.check_winner()) == int:
-                if self.debug:
-                    print(f'\nPlayer {self.board.winner} has won!')
-                self.winner = self.board.winner
-            else:
-                self.winner = True
-                if self.debug:
-                    print('Game is a draw!')
-                    
-        if self.debug:
-            self.show()
-                
-            
-        return True
-    
-    
 class OthelloBoard():
-    def __init__(self, size=8, debug=False):
-        self.board = [[0 for __ in range(size)] for _ in range(size)]
+    
+    def __init__(self, size=8, debug=False, board=False):
+        if board:
+            self.board = board
+        else:
+            self.board = [[0 for __ in range(size)] for _ in range(size)]
         self.winner = False
         self.debug = debug
-        self.flipped_count = [0, 0]
+        self.flip_count = [0, 0]
         
         
         self.board[size//2][size//2] = 1
@@ -134,22 +33,24 @@ class OthelloBoard():
                     add_val = '\u25EF'
                 else:
                     add_val = str(square)
-                    
                 return_val += " " + add_val
             return_val += "\n"
-            
         return return_val
     
     
     def get_board(self):
         return self.board
+    
+    
+    def copy(self):
+        return OthelloBoard(board = [row[:] for row in self.board])
         
     
-    def get_flipped_count(self, player):
+    def get_flip_count(self, player):
         if player == 1:
-            return self.flipped_count[0]
+            return self.flip_count[0]
         elif player == 2:
-            return self.flipped_count[1]
+            return self.flip_count[1]
                
     
     def count_pieces(self, player):
@@ -169,18 +70,21 @@ class OthelloBoard():
         Check floodfill spaces of all possible moves
         Can filter by edge pieces if inefficient
         '''
-        
         possible_moves = []
+        
         for x in range(len(self.board)):
             for y in range(len(self.board)):
                 self.debug = False
-                if self.check_move(player, (x,y)):
+                if self.check_move((x,y), player):
                     possible_moves.append((x,y))
                 self.debug = True
         return possible_moves
     
     
-    def check_flips(self, player, move):
+    def check_flips(self, move, player):
+        '''
+        Get flips from a given move
+        '''
         adjacent = self.adjacent_spaces(move, directional=True)
         flips = []
         
@@ -192,7 +96,7 @@ class OthelloBoard():
         return flips
     
     
-    def check_move(self, player, move):
+    def check_move(self, move, player):
         '''
         Check if a move is valid
         Returns True if valid, False if invalid
@@ -253,7 +157,6 @@ class OthelloBoard():
         Checks possible moves of player and returns True if none are available
         '''
         player_moves = self.get_possible_moves(player)
-        
         if len(player_moves) > 0:
             return False
         
@@ -333,7 +236,6 @@ class OthelloBoard():
             return False
         
         adjacent = self.adjacent_spaces(move, directional=True)
-        
         if direction not in adjacent:
             # Out of bounds
             return False
@@ -341,16 +243,20 @@ class OthelloBoard():
         count += 1
         return_val = [move]
         next_space = self.floodfill(adjacent[direction], player, direction, count)
-        
         if not next_space:
             return False
         
         if type(next_space) == list:
             return_val.extend(next_space)
         return return_val
-                
-                
-    def move(self, player, move):
+    
+    
+    def undo_move(self):
+        self.flip_count = [*self.last_flip_count]
+        self.board = [row[:] for row in self.last_board]
+        
+        
+    def move(self, move, player):
         '''
         Puts player piece on move, captures enemy pieces
         '''
@@ -358,15 +264,14 @@ class OthelloBoard():
         assert 0 <= move[0] <= 7, "X position out of bounds (0<x<7)"
         assert 0 <= move[1] <= 7, "Y position out of bounds (0<x<7)"
         
+        potential_flips = self.check_flips(move, player)
+        
+        self.last_flip_count = [*self.flip_count]
+        self.flip_count[player-1] += len(potential_flips)
+        
+        self.last_board = [row[:] for row in self.board]
         self.board[move[0]][move[1]] = player
         
-        potential_flips = self.check_flips(player, move)
-        
         for space in potential_flips:
-            self.board[space[0]][space[1]] = player
+            self.board[space[0]][space[1]] = player\
         
-        self.flipped_count[player-1] += len(potential_flips)
-    
-    
-    def unmake_move(self, player, move):
-        pass

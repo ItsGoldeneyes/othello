@@ -1,4 +1,4 @@
-from othello import OthelloGame
+from othello.othello import OthelloGame
 
 def main():
     game = OthelloGame()

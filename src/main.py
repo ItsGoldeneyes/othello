@@ -1,15 +1,12 @@
-from othello import OthelloGame
-import numpy as np
+from othello.othello import OthelloGame
 import othello_minimax as om
-import random
-import pickle
 import time
-import os
 
 
 class Othello:
     def __init__(self):
         self.game = OthelloGame()
+        
         
     def play(self):
         self.game.reset()
@@ -22,7 +19,8 @@ class Othello:
             player = (player%2)+1
             
         return self.game.winner()
-    
+
+
     def play_minimax(self):
         self.game.reset()
         player = 1
@@ -34,8 +32,9 @@ class Othello:
                 self.game.turn(player)
                 self.game.show()
             else:
-                move = mm.move(self.game.board)
-                self.game.turn(move)
+                print('Minimax is thinking...')
+                move = mm.move(self.game.board, player)
+                self.game.turn(2, pos=move)
                 
             player = (player%2)+1
             
@@ -45,4 +44,4 @@ class Othello:
 if __name__ == "__main__":
     game = Othello()
     
-    game.play()
+    game.play_minimax()

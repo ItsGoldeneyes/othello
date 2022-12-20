@@ -1,4 +1,4 @@
-from othello import OthelloGame
+from othello.othello import OthelloGame
 import random
 import time
 
