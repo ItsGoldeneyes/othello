@@ -27,7 +27,7 @@ class Minimax:
             return board.count_pieces(2) - board.count_pieces(1)
     
     
-    def minimax(self, board, player, depth=3, alpha=-math.inf, beta=math.inf):
+    def minimax(self, board, player, depth=2, alpha=-math.inf, beta=math.inf):
         moves = board.get_possible_moves(player)
         if not moves:
             return None, self.evaluate(board, player)
@@ -36,11 +36,12 @@ class Minimax:
             return None, self.evaluate(board, player)
         
         if player == self.player:
-            print('self')
             best_move = None
             best_val = -math.inf
             for move in moves:
+                print('self')
                 board.move(move, player)
+                print(board)
                 _, val = self.minimax(board, (player%2)+1, depth-1, alpha, beta)
                 board.undo_move()
                 if val > best_val:
@@ -52,10 +53,11 @@ class Minimax:
             return best_move, best_val
         
         else:
-            print('other')
             best_val = math.inf
             for move in moves:
+                print('other')
                 board.move(move, player)
+                print(board)
                 _, val = self.minimax(board, (player%2)+1, depth-1, alpha, beta)
                 board.undo_move()
                 best_val = min(best_val, val)

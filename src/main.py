@@ -35,6 +35,7 @@ class Othello:
                 print('Minimax is thinking...')
                 move = mm.move(self.game.board, player)
                 self.game.turn(2, pos=move)
+                self.game.show()
                 
             player = (player%2)+1
             
