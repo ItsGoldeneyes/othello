@@ -1,149 +1,48 @@
 from othello import OthelloGame
 import numpy as np
+import othello_minimax as om
 import random
 import pickle
 import time
-import neat
 import os
 
 
 class Othello:
-    
-    def bucket_output(self, output):
-        return (int((output[0]*10)/1.25), int((output[1]*10)/1.25))
+    def __init__(self):
+        self.game = OthelloGame()
         
-    def test_ai(self, net):
-        game = OthelloGame()
-        game.show()
+    def play(self):
+        self.game.reset()
         player = 1
+        self.game.show()
         
-        while not game.winner:
-            if player == 1:
-                game.turn(player)
-            else:
-                output = net.activate(tuple(game.get_info()))
-                decision = self.bucket_output(output)
-                
-                game.turn(player, decision)
-                
-            game.show()
+        while not self.game.winner:
+            self.game.turn(player)
+            self.game.show()
             player = (player%2)+1
-
-    def train_ai(self, genome1, genome2, config):
-        net1 = neat.nn.FeedForwardNetwork.create(genome1, config)
-        net2 = neat.nn.FeedForwardNetwork.create(genome2, config)
-        self.genome1 = genome1
-        self.genome2 = genome2
-        
-        game = OthelloGame(debug=False)
-        # game.show()
+            
+        return self.game.winner()
+    
+    def play_minimax(self):
+        self.game.reset()
         player = 1
-        fail_timer = 0
-        while not game.winner:
-            # time.sleep(0.1)
+        self.game.show()
+        mm = om.Minimax()
+        
+        while not self.game.winner:
             if player == 1:
-                
-                info = np.array(game.get_info())
-                ix=np.isin(info, [1,2])
-                vc=np.vectorize(lambda x: 1 if x == 2 else 1)
-                flipped_info = np.where(ix, vc(info), info)
-                info = flipped_info.tolist()
-                
-                output = net1.activate(tuple(info))
-                decision = self.bucket_output(output)
-                # print(decision)
-                turn_result = game.turn(player, decision)
+                self.game.turn(player)
+                self.game.show()
             else:
-                output = net2.activate(tuple(game.get_info()))
-                decision = self.bucket_output(output)
-                # print(decision)
+                move = mm.move(self.game.board)
+                self.game.turn(move)
                 
-                turn_result = game.turn(player, decision)
-                
-            if turn_result == False:
-                fail_timer += 1
-            else:
-                fail_timer = 0
-                
-            if fail_timer >= 2:
-                break
-        
             player = (player%2)+1
-            # game.show()
-        
-        self.calculate_fitness(genome1, genome2, game.get_fitness())
-         
-    def calculate_fitness(self, genome1, genome2, fitness):
-        if fitness[0] < 3:
-            genome1.fitness -= 1
             
-        if fitness[1] < 3:
-            genome2.fitness -= 1
-        
-        if type(fitness[4]) == int:
-            if fitness[4] == 1:
-                genome1.fitness += 15
-            elif fitness[4] == 2:
-                genome2.fitness += 15
-        elif fitness[4]:
-            genome1.fitness += 2
-            genome2.fitness += 2
-        
-        genome1.fitness += fitness[0]/10
-        genome1.fitness += fitness[2]/5
-        genome2.fitness += fitness[1]/10
-        genome2.fitness += fitness[3]/5
-        
-
-def eval_genomes(genomes, config):
-    start_time = time.time()
-    for i, (genome_id1, genome1) in enumerate(genomes):
-        if i == len(genomes) - 1:
-            break
-        genome1.fitness = 0
-        for genome_id2, genome2 in genomes[i+1:]:
-            genome2.fitness = 0 if genome2.fitness == None else genome2.fitness
-            
-            game = Othello()
-            game.train_ai(genome1, genome2, config)
-            
-    end_time = time.time()
-    print("Time taken: ", end_time - start_time)
-            
-def run_neat(config):
-    time_now = time.time()
-    print("neat pop")
-    p = neat.Population(config)
-    time_post_neat= time.time()
-    print("neat pop time: ", time_post_neat - time_now)
-    print("add reporter")
-    p.add_reporter(neat.StdOutReporter(True))
-    stats = neat.StatisticsReporter()
-    p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(1))
+        return self.game.winner()
     
-    print("pre run")
-
-    winner = p.run(eval_genomes, 50) #50
-    with open("best.pickle", "wb") as f:
-        pickle.dump(winner, f)
-        
-        
-def test_best_ai(config):
-    with open("best.pickle", "rb") as f:
-        winner = pickle.load(f)
-    net = neat.nn.FeedForwardNetwork.create(winner, config)
-    
-    game = Othello()
-    game.test_ai(net)
 
 if __name__ == "__main__":
-    local_dir = os.path.dirname(__file__)
-    config_path = os.path.join(local_dir, 'config.txt')
+    game = Othello()
     
-    config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                         neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                         config_path)
-    
-    run_neat(config)
-    test_best_ai(config)
+    game.play()

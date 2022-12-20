@@ -13,6 +13,11 @@ class OthelloGame():
         print(self.board)
 
 
+    def reset(self):
+        self.board = OthelloBoard(debug=self.debug)
+        self.winner = False
+        self.stalemate_timer = 0
+    
     def extract_pos(self, pos_str):
         '''
         Get position from input using regex
@@ -40,15 +45,7 @@ class OthelloGame():
                 
         return output
         
-    
-    def get_fitness(self):
-        '''
-        Returns information about the game for fitness function to use
-        p1_count, p2_count, p1_flipped, p2_flipped, winner
-        '''
-        return (self.board.count_pieces(1), self.board.count_pieces(2), self.board.get_flipped_count(1), self.board.get_flipped_count(2), self.winner)
-    
-        
+            
     def turn(self, player, pos= False):
         '''
         Takes a turn for a given player
@@ -112,8 +109,7 @@ class OthelloBoard():
         self.board = [[0 for __ in range(size)] for _ in range(size)]
         self.winner = False
         self.debug = debug
-        self.player_1_flipped = 0
-        self.player_2_flipped = 0
+        self.flipped_count = [0, 0]
         
         
         self.board[size//2][size//2] = 1
@@ -151,10 +147,117 @@ class OthelloBoard():
     
     def get_flipped_count(self, player):
         if player == 1:
-            return self.player_1_flipped
+            return self.flipped_count[0]
         elif player == 2:
-            return self.player_2_flipped
+            return self.flipped_count[1]
                
+    
+    def count_pieces(self, player):
+        '''
+        Returns the number of pieces a player has on the board
+        '''
+        count = 0
+        for line in self.board:
+            for square in line:
+                if square == player:
+                    count += 1
+        return count
+    
+        
+    def get_possible_moves(self, player):
+        '''
+        Check floodfill spaces of all possible moves
+        Can filter by edge pieces if inefficient
+        '''
+        
+        possible_moves = []
+        for x in range(len(self.board)):
+            for y in range(len(self.board)):
+                self.debug = False
+                if self.check_move(player, (x,y)):
+                    possible_moves.append((x,y))
+                self.debug = True
+        return possible_moves
+    
+    
+    def check_flips(self, player, move):
+        adjacent = self.adjacent_spaces(move, directional=True)
+        flips = []
+        
+        for direction in adjacent:
+            potential_flipped = self.floodfill(adjacent[direction], player, direction)
+            if potential_flipped:
+                flips.extend(potential_flipped)
+        
+        return flips
+    
+    
+    def check_move(self, player, move):
+        '''
+        Check if a move is valid
+        Returns True if valid, False if invalid
+        '''
+        if move[0] > 7 or move[0] < 0:
+            # if self.debug:
+            #     print("X is out of bounds")
+            return False
+        if move[1] > 7 or move[1] < 0:
+            # if self.debug:
+            #     print("Y is out of bounds")
+            return False
+        
+        if self.board[move[0]][move[1]] != 0:
+            # if self.debug:
+            #     print("space is taken")
+            return False
+        
+        captures_enemy = False
+        adjacent = self.adjacent_spaces(move, directional=True)
+        for direction in adjacent:
+            if self.floodfill(adjacent[direction], player, direction):            
+                captures_enemy = True
+                break
+        
+        if not captures_enemy:
+            # if self.debug:
+            #     print("Not capturing enemy")
+            return False
+            
+        return True
+    
+    
+    def check_winner(self):
+        '''
+        Checks if there are any empty spaces, if not, checks the number of pieces each player has
+        Returns the winner, or True if it's a draw
+        '''
+        if any(0 in row for row in self.board):
+            return False
+        
+        player_1_count = sum(row.count(1) for row in self.board)
+        player_2_count = sum(row.count(2) for row in self.board)
+        
+        if player_1_count > player_2_count:
+            self.winner = 1
+            return 1
+        elif player_2_count > player_1_count:
+            self.winner = 2
+            return 2
+        else:
+            self.winner = True
+            return True
+        
+    
+    def check_stalemate(self, player):
+        '''
+        Checks possible moves of player and returns True if none are available
+        '''
+        player_moves = self.get_possible_moves(player)
+        
+        if len(player_moves) > 0:
+            return False
+        
+        return True
     
     def adjacent_spaces(self, pos, directional=False):
         '''
@@ -245,104 +348,8 @@ class OthelloBoard():
         if type(next_space) == list:
             return_val.extend(next_space)
         return return_val
-    
-    
-    def count_pieces(self, player):
-        '''
-        Returns the number of pieces a player has on the board
-        '''
-        count = 0
-        for line in self.board:
-            for square in line:
-                if square == player:
-                    count += 1
-        return count
-    
-        
-    def get_possible_moves(self, player):
-        '''
-        Check floodfill spaces of all possible moves
-        Can filter by edge pieces if inefficient
-        '''
-        
-        possible_moves = []
-        for x in range(len(self.board)):
-            for y in range(len(self.board)):
-                self.debug = False
-                if self.check_move(player, (x,y)):
-                    possible_moves.append((x,y))
-                self.debug = True
-        return possible_moves
-    
-    
-    def check_move(self, player, move):
-        '''
-        Check if a move is valid
-        Returns True if valid, False if invalid
-        '''
-        if move[0] > 7 or move[0] < 0:
-            # if self.debug:
-            #     print("X is out of bounds")
-            return False
-        if move[1] > 7 or move[1] < 0:
-            # if self.debug:
-            #     print("Y is out of bounds")
-            return False
-        
-        if self.board[move[0]][move[1]] != 0:
-            # if self.debug:
-            #     print("space is taken")
-            return False
-        
-        captures_enemy = False
-        adjacent = self.adjacent_spaces(move, directional=True)
-        for direction in adjacent:
-            if self.floodfill(adjacent[direction], player, direction):            
-                captures_enemy = True
-                break
-        
-        if not captures_enemy:
-            # if self.debug:
-            #     print("Not capturing enemy")
-            return False
-            
-        return True
-    
-    
-    def check_winner(self):
-        '''
-        Checks if there are any empty spaces, if not, checks the number of pieces each player has
-        Returns the winner, or True if it's a draw
-        '''
-        if any(0 in row for row in self.board):
-            return False
-        
-        player_1_count = sum(row.count(1) for row in self.board)
-        player_2_count = sum(row.count(2) for row in self.board)
-        
-        if player_1_count > player_2_count:
-            self.winner = 1
-            return 1
-        elif player_2_count > player_1_count:
-            self.winner = 2
-            return 2
-        else:
-            self.winner = True
-            return True
-        
-    
-    def check_stalemate(self, player):
-        '''
-        Checks possible moves of player and returns True if none are available
-        '''
-        player_moves = self.get_possible_moves(player)
-        
-        if len(player_moves) > 0:
-            return False
-        
-        return True
-    
-    
+                
+                
     def move(self, player, move):
         '''
         Puts player piece on move, captures enemy pieces
@@ -353,18 +360,13 @@ class OthelloBoard():
         
         self.board[move[0]][move[1]] = player
         
-        adjacent = self.adjacent_spaces(move, directional=True)
-        flipped = []
+        potential_flips = self.check_flips(player, move)
         
-        for direction in adjacent:
-            potential_flipped = self.floodfill(adjacent[direction], player, direction)
-            if potential_flipped:
-                flipped.extend(potential_flipped)
-            
-        for space in flipped:
+        for space in potential_flips:
             self.board[space[0]][space[1]] = player
         
-        if player == 1:
-            self.player_1_flipped += len(flipped)
-        elif player == 2:
-            self.player_2_flipped += len(flipped)
+        self.flipped_count[player-1] += len(potential_flips)
+    
+    
+    def unmake_move(self, player, move):
+        pass

@@ -9,4 +9,5 @@ class Minimax:
         move, val = self.minimax(board)
         return move
     
-    def minimax(self, )
+    def minimax(self):
+        pass
