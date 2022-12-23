@@ -232,10 +232,10 @@ class BoardFloodfillTest(unittest.TestCase):
         
     def test_floodfill_player_1_multi(self):
         # Arrange
-        self.board.move(2, (5,3))
-        self.board.move(2, (6,3))
-        self.board.move(2, (2,3))
-        self.board.move(1, (1,3))
+        self.board.move((5,3), 2)
+        self.board.move((6,3), 2)
+        self.board.move((2,3), 2)
+        self.board.move((1,3), 1)
         
         orig_pos = (7,3)
         direction = 's'
@@ -250,8 +250,8 @@ class BoardFloodfillTest(unittest.TestCase):
          
     def test_floodfill_player_2_multi(self):
         # Arrange
-        self.board.move(1, (4,2))
-        self.board.move(2, (5,4))
+        self.board.move((4,2), 1)
+        self.board.move((5,4), 2)
         
         orig_pos = (4, 1)
         direction = 'e'
@@ -317,8 +317,8 @@ class BoardMoveTest(unittest.TestCase):
                         [0, 0, 0, 0, 0, 0, 0, 0]]
 
         # Act
-        self.board.move(move_pos, 1)
-        self.board.undo_move()
+        state = self.board.move(move_pos, 1)
+        self.board.undo_move(state)
         
         # Assert
         self.assertEqual(self.board.board, expected_board)
@@ -336,8 +336,8 @@ class BoardMoveTest(unittest.TestCase):
                         [0, 0, 0, 0, 0, 0, 0, 0]]
 
         # Act
-        self.board.move(move_pos, 2)
-        self.board.undo_move()
+        state = self.board.move(move_pos, 2)
+        self.board.undo_move(state)
         
         # Assert
         self.assertEqual(self.board.board, expected_board)
@@ -346,7 +346,7 @@ class BoardMoveTest(unittest.TestCase):
 def run_tests():
     # Run only the tests in the specified classes
 
-    test_classes_to_run = [BoardMoveTest]#[BoardDefaultTest, BoardAdjacentTest, BoardFloodfillTest]
+    test_classes_to_run = [BoardDefaultTest, BoardAdjacentTest, BoardFloodfillTest, BoardMoveTest]
 
     loader = unittest.TestLoader()
 
