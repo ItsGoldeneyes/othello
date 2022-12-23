@@ -251,9 +251,10 @@ class OthelloBoard():
         return return_val
     
     
-    def undo_move(self):
-        self.flip_count = [*self.last_flip_count]
-        self.board = [row[:] for row in self.last_board]
+    def undo_move(self, state):
+        
+        self.board = state[0]
+        self.flip_count = state[1]
         
         
     def move(self, move, player):
@@ -264,14 +265,14 @@ class OthelloBoard():
         assert 0 <= move[0] <= 7, "X position out of bounds (0<x<7)"
         assert 0 <= move[1] <= 7, "Y position out of bounds (0<x<7)"
         
+        state = ([row[:] for row in self.board], [*self.flip_count])
+                
         potential_flips = self.check_flips(move, player)
-        
-        self.last_flip_count = [*self.flip_count]
         self.flip_count[player-1] += len(potential_flips)
-        
-        self.last_board = [row[:] for row in self.board]
         self.board[move[0]][move[1]] = player
         
         for space in potential_flips:
             self.board[space[0]][space[1]] = player
+            
         
+        return state

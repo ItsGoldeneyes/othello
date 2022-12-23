@@ -13,7 +13,7 @@ class Minimax:
         
         best_move = [(0, 0), -(math.inf)]
         for move in board.get_possible_moves(player):
-            _, val = self.minimax(board, player)
+            _, val = self.minimax(board, player, depth=5)
             
             if val > best_move[1]:
                 best_move = [move, val]
@@ -39,11 +39,11 @@ class Minimax:
             best_move = None
             best_val = -math.inf
             for move in moves:
-                print('self')
-                board.move(move, player)
-                print(board)
+                # print('self')
+                last_state = board.move(move, player)
+                # print(board)
                 _, val = self.minimax(board, (player%2)+1, depth-1, alpha, beta)
-                board.undo_move()
+                board.undo_move(last_state)
                 if val > best_val:
                     best_move = move
                     best_val = val
@@ -55,11 +55,11 @@ class Minimax:
         else:
             best_val = math.inf
             for move in moves:
-                print('other')
-                board.move(move, player)
-                print(board)
+                # print('other')
+                last_state = board.move(move, player)
+                # print(board)
                 _, val = self.minimax(board, (player%2)+1, depth-1, alpha, beta)
-                board.undo_move()
+                board.undo_move(last_state)
                 best_val = min(best_val, val)
                 beta = min(beta, val)
                 if alpha >= beta:
