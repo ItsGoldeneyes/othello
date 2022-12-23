@@ -264,11 +264,89 @@ class BoardFloodfillTest(unittest.TestCase):
         # Assert
         self.assertEqual(expected_floodfill, result_floodfill)
         
+class BoardMoveTest(unittest.TestCase):
+    def setUp(self):
+        self.board = OthelloBoard()
+    
+    def test_move_player_1(self):
+        # Arrange
+        move_pos = (4,2)
+        expected_board = [[0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 1, 2, 0, 0, 0],
+                        [0, 0, 1, 1, 1, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0]]
+
+        # Act
+        self.board.move(move_pos, 1)
         
+        # Assert
+        self.assertEqual(self.board.board, expected_board)
+    
+    def test_move_player_2(self):
+        # Arrange
+        move_pos = (3,2)
+        expected_board = [[0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 2, 2, 2, 0, 0, 0],
+                        [0, 0, 0, 2, 1, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0]]
+
+        # Act
+        self.board.move(move_pos, 2)
+        
+        # Assert
+        self.assertEqual(self.board.board, expected_board)
+    
+    def test_unmove_player_1(self):
+        # Arrange
+        move_pos = (4,2)
+        expected_board = [[0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 1, 2, 0, 0, 0],
+                        [0, 0, 0, 2, 1, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0]]
+
+        # Act
+        self.board.move(move_pos, 1)
+        self.board.undo_move()
+        
+        # Assert
+        self.assertEqual(self.board.board, expected_board)
+    
+    def test_unmove_player_2(self):
+        # Arrange
+        move_pos = (3,2)
+        expected_board = [[0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 1, 2, 0, 0, 0],
+                        [0, 0, 0, 2, 1, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0]]
+
+        # Act
+        self.board.move(move_pos, 2)
+        self.board.undo_move()
+        
+        # Assert
+        self.assertEqual(self.board.board, expected_board)
+        
+         
 def run_tests():
     # Run only the tests in the specified classes
 
-    test_classes_to_run = [BoardDefaultTest, BoardAdjacentTest, BoardFloodfillTest]
+    test_classes_to_run = [BoardMoveTest]#[BoardDefaultTest, BoardAdjacentTest, BoardFloodfillTest]
 
     loader = unittest.TestLoader()
 

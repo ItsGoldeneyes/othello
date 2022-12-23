@@ -273,5 +273,5 @@ class OthelloBoard():
         self.board[move[0]][move[1]] = player
         
         for space in potential_flips:
-            self.board[space[0]][space[1]] = player\
+            self.board[space[0]][space[1]] = player
         
