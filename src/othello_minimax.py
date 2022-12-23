@@ -43,11 +43,11 @@ class Minimax:
         # safe_pieces = board.get_safe_pieces(self.player)
         
         
-        score += corner_count*3
+        score += corner_count*5
         score -= opp_corner_count*2
-        score += edge_count
-        score -= opp_edge_count//2
-        score += piece_count//2
+        score += edge_count//2
+        score -= opp_edge_count//4
+        score += piece_count
         
         return score
         

@@ -60,6 +60,6 @@ class Othello:
 if __name__ == "__main__":
     game = Othello()
     
-    winner = game.play_minimax_v_minimax()
+    winner = game.play_minimax()
     
     print(f"Player {winner} wins!")
