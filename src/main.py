@@ -63,3 +63,4 @@ if __name__ == "__main__":
     winner = game.play_minimax()
     
     print(f"Player {winner} wins!")
+    print(f' P1: {game.game.board.count_pieces(1)} - P2: {game.game.board.count_pieces(2)}')
