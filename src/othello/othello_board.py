@@ -212,6 +212,20 @@ class OthelloBoard():
                 
         return adjacent
     
+    def safe_pieces(self, player):
+        '''
+        Returns a list of pieces that are safe from capture
+        
+        TODO: Edge detection, area control
+        '''
+        safe_pieces = []
+        for x in range(len(self.board)):
+            for y in range(len(self.board)):
+                if self.board[x][y] == player:
+                    if self.check_move((x,y), player):
+                        safe_pieces.append((x,y))
+        return safe_pieces
+    
     
     def floodfill(self, move, player, direction, count=0, test=False):
         '''
