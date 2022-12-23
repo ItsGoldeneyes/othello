@@ -18,7 +18,7 @@ class Othello:
             self.game.show()
             player = (player%2)+1
             
-        return self.game.winner()
+        return self.game.winner
 
 
     def play_minimax(self):
@@ -39,10 +39,27 @@ class Othello:
                 
             player = (player%2)+1
             
-        return self.game.winner()
+        return self.game.winner
     
+    def play_minimax_v_minimax(self):
+        self.game.reset()
+        player = 1
+        self.game.show()
+        mm = om.Minimax()
+        
+        while not self.game.winner:
+            print('Minimax is thinking...')
+            move = mm.move(self.game.board, player)
+            self.game.turn(player, pos=move)
+            self.game.show()
+                
+            player = (player%2)+1
+            
+        return self.game.winner
 
 if __name__ == "__main__":
     game = Othello()
     
-    game.play_minimax()
+    winner = game.play_minimax_v_minimax()
+    
+    print(f"Player {winner} wins!")

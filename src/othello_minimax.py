@@ -21,6 +21,7 @@ class Minimax:
     
     
     def evaluate(self, board, player):
+        # Give more score to edges
         if player == 1:
             return board.count_pieces(1) - board.count_pieces(2)
         else:
