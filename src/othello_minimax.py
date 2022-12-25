@@ -13,7 +13,7 @@ class Minimax:
         
         best_move = [(0, 0), -(math.inf)]
         for move in board.get_possible_moves(player):
-            _, val = self.minimax(board, player, depth=3)
+            _, val = self.minimax(board, player, depth=4)
             
             if val > best_move[1]:
                 best_move = [move, val]
@@ -61,7 +61,7 @@ class Minimax:
         score -= opp_edge_count//4
         score += piece_count
         
-        return score
+        return score #piece_count-opp_piece_count
         
         
     def minimax(self, board, player, depth=2, alpha=-math.inf, beta=math.inf):
