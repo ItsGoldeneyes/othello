@@ -71,19 +71,45 @@ class OthelloBoard():
         Actual moves are moves that flip at least one piece
         '''
         self.debug = False
+        actual_moves = []
+        for x in range(len(self.board)):
+            for y in range(len(self.board)):
+                if self.check_move((x,y), player):
+                    actual_moves.append((x,y))
         
-        actual_moves = [[(x,y) for y in range(len(self.board)) 
-                           if self.check_move((x,y), player)] 
-                          for x in range(len(self.board))]
+        # actual_moves = [[(x,y) for y in range(len(self.board)) 
+        #                    if self.check_move((x,y), player)] 
+        #                   for x in range(len(self.board))]
         
         self.debug = True
         return actual_moves
     
     def get_potential_moves(self, player):
         '''
-        Check spaces with adjacent empty space
+        Return spaces with adjacent empty space
         Potential spaces could be contested in the future
         '''
+        
+        self.debug = False
+        potential_moves = []
+        for x in range(len(self.board)):
+            for y in range(len(self.board)):
+                if self.board[x][y] == (player%2)+1:
+                    zeros = self.adjacent_zeros((x,y))
+                    if zeros != []:
+                        potential_moves.extend(zeros)
+        
+        self.debug = True
+        return potential_moves
+    
+    
+    def adjacent_zeros(self, move):
+        '''
+        Check if a move has an adjacent empty space
+        '''
+        adjacent = self.adjacent_coords(move)
+        zeros = [coord for coord in adjacent if self.board[coord[0]][coord[1]] == 0]
+        return zeros
         
     
     def check_flips(self, move, player):
