@@ -20,8 +20,20 @@ class Minimax:
         return best_move[0]
     
     
-    def evaluate(self, board):
+    def evaluate(self, board):        
         score = 0
+        
+        static_weights = [[4,  -3,  2,  2,  2,  2, -3,  4],
+                          [-3, -4, -1, -1, -1, -1, -4, -3],
+                          [2,  -1,  1,  0,  0,  1, -1,  2],
+                          [2,  -1,  0,  1,  1,  0, -1,  2],
+                          [2,  -1,  0,  1,  1,  0, -1,  2],
+                          [2,  -1,  1,  0,  0,  1, -1,  2],
+                          [-3, -4, -1, -1, -1, -1, -4, -3],
+                          [4,  -3,  2,  2,  2,  2, -3,  4]]
+        
+        piece_locations = [[x if x == 1 else 0 for x in row ] for row in board]
+        
         piece_count = board.count_pieces(self.player)
         opp_piece_count = board.count_pieces((self.player%2)+1)
         
