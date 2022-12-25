@@ -32,7 +32,7 @@ class OthelloGame():
         if second == None:
             raise ValueError("Input contains only one number")
         
-        return (int(first.group()), int(second.group()))
+        return (int(second.group())-1, int(first.group())-1)
     
     
     def get_info(self):
@@ -85,6 +85,8 @@ class OthelloGame():
                     print(e)
                 if pos_tuple:
                     valid = self.board.check_move(pos_tuple, player)
+                if not valid:
+                    print("Invalid move!")
                     
             self.board.move(pos_tuple, player)
             

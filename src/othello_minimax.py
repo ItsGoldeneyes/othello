@@ -21,7 +21,7 @@ class Minimax:
                 best_move = [move, val]
                 
         time_stop = time.perf_counter()
-        print(f'Minimax took: {time_stop - time_start}s')
+        # print(f'Minimax took: {time_stop - time_start}s')
         return best_move[0]
     
 
