@@ -65,27 +65,32 @@ class OthelloBoard():
         return count
     
         
-    def get_possible_moves(self, player):
+    def get_actual_moves(self, player):
         '''
         Check floodfill spaces of all possible moves
-        Can filter by edge pieces if inefficient
+        Actual moves are moves that flip at least one piece
         '''
-        possible_moves = []
+        self.debug = False
         
-        for x in range(len(self.board)):
-            for y in range(len(self.board)):
-                self.debug = False
-                if self.check_move((x,y), player):
-                    possible_moves.append((x,y))
-                self.debug = True
-        return possible_moves
+        actual_moves = [[(x,y) for y in range(len(self.board)) 
+                           if self.check_move((x,y), player)] 
+                          for x in range(len(self.board))]
+        
+        self.debug = True
+        return actual_moves
     
+    def get_potential_moves(self, player):
+        '''
+        Check spaces with adjacent empty space
+        Potential spaces could be contested in the future
+        '''
+        
     
     def check_flips(self, move, player):
         '''
         Get flips from a given move
         '''
-        adjacent = self.adjacent_spaces(move, directional=True)
+        adjacent = self.adjacent_coords(move, directional=True)
         flips = []
         
         for direction in adjacent:
@@ -116,7 +121,7 @@ class OthelloBoard():
             return False
         
         captures_enemy = False
-        adjacent = self.adjacent_spaces(move, directional=True)
+        adjacent = self.adjacent_coords(move, directional=True)
         for direction in adjacent:
             if self.floodfill(adjacent[direction], player, direction):            
                 captures_enemy = True
@@ -156,13 +161,13 @@ class OthelloBoard():
         '''
         Checks possible moves of player and returns True if none are available
         '''
-        player_moves = self.get_possible_moves(player)
+        player_moves = self.get_actual_moves(player)
         if len(player_moves) > 0:
             return False
         
         return True
     
-    def adjacent_spaces(self, pos, directional=False):
+    def adjacent_coords(self, pos, direction=False, directional=False):
         '''
         Returns a list of adjacent spaces to a given position
         If directional is True, returns a dictionary of adjacent spaces with their direction
@@ -171,6 +176,25 @@ class OthelloBoard():
         s = pos[0]-1 >= 0
         e = pos[1]+1 < len(self.board)
         w = pos[1]-1 >= 0
+        
+        if direction:
+            if n:
+                if e:
+                    return (pos[0]+1, pos[1]+1)
+                if w:
+                    return (pos[0]+1, pos[1]-1)
+                return (pos[0]+1, pos[1])
+            if s:
+                if e:
+                    return (pos[0]-1, pos[1]+1)
+                if w:
+                    return (pos[0]-1, pos[1]-1)
+                return (pos[0]-1, pos[1])
+            if e:
+                return (pos[0], pos[1]+1)
+            if w:
+                return (pos[0], pos[1]-1)
+            return False
         
         if directional:
             adjacent = {}
@@ -212,6 +236,74 @@ class OthelloBoard():
                 
         return adjacent
     
+    def adjacent_spaces(self, pos, direction=False, directional=False):
+        '''
+        Returns a list of adjacent spaces to a given position
+        If directional is True, returns a dictionary of adjacent spaces with their direction
+        '''
+        n = pos[0]+1 < len(self.board)
+        s = pos[0]-1 >= 0
+        e = pos[1]+1 < len(self.board)
+        w = pos[1]-1 >= 0
+        
+        if direction:
+            if n:
+                if e:
+                    return self.board[pos[0]+1, pos[1]+1]
+                if w:
+                    return self.board[pos[0]+1, pos[1]-1]
+                return self.board[pos[0]+1, pos[1]]
+            if s:
+                if e:
+                    return self.board[pos[0]-1, pos[1]+1]
+                if w:
+                    return self.board[pos[0]-1, pos[1]-1]
+                return self.board[pos[0]-1, pos[1]]
+            if e:
+                return self.board[pos[0], pos[1]+1]
+            if w:
+                return self.board[pos[0], pos[1]-1]
+        
+        if directional:
+            adjacent = {}
+            if n:
+                adjacent["n"]= self.board[pos[0]+1, pos[1]]
+                if e:
+                    adjacent["ne"] = self.board[pos[0]+1, pos[1]+1]
+                if w:
+                    adjacent["nw"] = self.board[pos[0]+1, pos[1]-1]
+            if s:
+                adjacent["s"]= self.board[pos[0]-1, pos[1]]
+                if e:
+                    adjacent["se"] = self.board[pos[0]-1, pos[1]+1]
+                if w:
+                    adjacent["sw"] = self.board[pos[0]-1, pos[1]-1]
+            if e:
+                adjacent["e"]= self.board[pos[0], pos[1]+1]
+            if w:
+                adjacent["w"]= self.board[pos[0], pos[1]-1]
+
+        else:
+            adjacent = []
+            if n:
+                adjacent.append(self.board[pos[0]+1, pos[1]])
+                if e:
+                    adjacent.append(self.board[pos[0]+1, pos[1]+1])
+                if w:
+                    adjacent.append(self.board[pos[0]+1, pos[1]-1])
+            if s:
+                adjacent.append(self.board[pos[0]-1, pos[1]])
+                if e:
+                    adjacent.append(self.board[pos[0]-1, pos[1]+1])
+                if w:
+                    adjacent.append(self.board[pos[0]-1, pos[1]-1])
+            if e:
+                adjacent.append(self.board[pos[0], pos[1]+1])
+            if w:
+                adjacent.append(self.board[pos[0], pos[1]-1])
+                
+        return adjacent
+    
     def safe_pieces(self, player):
         '''
         Returns a list of pieces that are safe from capture
@@ -249,7 +341,7 @@ class OthelloBoard():
         if self.board[move[0]][move[1]] != (player%2)+1:
             return False
         
-        adjacent = self.adjacent_spaces(move, directional=True)
+        adjacent = self.adjacent_coords(move, directional=True)
         if direction not in adjacent:
             # Out of bounds
             return False

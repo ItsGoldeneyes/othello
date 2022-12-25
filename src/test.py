@@ -47,7 +47,7 @@ class BoardAdjacentTest(unittest.TestCase):
         expected_adjacent = {"n": (5, 4), "ne": (5, 5), "e": (4, 5), "se": (3, 5), "s": (3, 4), "sw": (3, 3), "w": (4, 3), "nw": (5, 3)}
 
         # Act
-        result_adjacent = self.board.adjacent_spaces(test_pos, True)
+        result_adjacent = self.board.adjacent_coords(test_pos, True)
 
         # Assert
         self.assertEqual(expected_adjacent, result_adjacent)
@@ -58,7 +58,7 @@ class BoardAdjacentTest(unittest.TestCase):
         expected_adjacent = {"s": (6, 0), "se": (6, 1), "e": (7, 1)}
 
         # Act
-        result_adjacent = self.board.adjacent_spaces(test_pos, True)
+        result_adjacent = self.board.adjacent_coords(test_pos, True)
 
         # Assert
         self.assertEqual(expected_adjacent, result_adjacent)
@@ -69,7 +69,7 @@ class BoardAdjacentTest(unittest.TestCase):
         expected_adjacent = {"s": (6, 7), "sw": (6, 6), "w": (7, 6)}
 
         # Act
-        result_adjacent = self.board.adjacent_spaces(test_pos, True)
+        result_adjacent = self.board.adjacent_coords(test_pos, True)
 
         # Assert
         self.assertEqual(expected_adjacent, result_adjacent)
@@ -80,7 +80,7 @@ class BoardAdjacentTest(unittest.TestCase):
         expected_adjacent = {"n": (1, 0), "ne": (1, 1), "e": (0, 1)}
 
         # Act
-        result_adjacent = self.board.adjacent_spaces(test_pos, True)
+        result_adjacent = self.board.adjacent_coords(test_pos, True)
 
         # Assert
         self.assertEqual(expected_adjacent, result_adjacent)
@@ -91,7 +91,7 @@ class BoardAdjacentTest(unittest.TestCase):
         expected_adjacent = {"n": (1, 7), "nw": (1, 6), "w": (0, 6)}
 
         # Act
-        result_adjacent = self.board.adjacent_spaces(test_pos, True)
+        result_adjacent = self.board.adjacent_coords(test_pos, True)
 
         # Assert
         self.assertEqual(expected_adjacent, result_adjacent)
@@ -104,7 +104,7 @@ class BoardFloodfillTest(unittest.TestCase):
         # Arrange
         orig_pos = (5, 3)
         direction = 's'
-        test_pos = self.board.adjacent_spaces(orig_pos, directional=True)[direction]
+        test_pos = self.board.adjacent_coords(orig_pos, directional=True)[direction]
         expected_floodfill = [(4,3)]
 
         # Act
@@ -117,7 +117,7 @@ class BoardFloodfillTest(unittest.TestCase):
         # Arrange
         orig_pos = (2, 4)
         direction = 'n'
-        test_pos = self.board.adjacent_spaces(orig_pos, directional=True)[direction]
+        test_pos = self.board.adjacent_coords(orig_pos, directional=True)[direction]
         expected_floodfill = [(3,4)]
 
         # Act
@@ -130,7 +130,7 @@ class BoardFloodfillTest(unittest.TestCase):
         # Arrange
         orig_pos = (3, 5)
         direction = 'w'
-        test_pos = self.board.adjacent_spaces(orig_pos, directional=True)[direction]
+        test_pos = self.board.adjacent_coords(orig_pos, directional=True)[direction]
         expected_floodfill = [(3,4)]
 
         # Act
@@ -143,7 +143,7 @@ class BoardFloodfillTest(unittest.TestCase):
         # Arrange
         orig_pos = (4, 2)
         direction = 'e'
-        test_pos = self.board.adjacent_spaces(orig_pos, directional=True)[direction]
+        test_pos = self.board.adjacent_coords(orig_pos, directional=True)[direction]
         expected_floodfill = [(4,3)]
 
         # Act
@@ -156,7 +156,7 @@ class BoardFloodfillTest(unittest.TestCase):
         # Arrange
         orig_pos = (5, 4)
         direction = 's'
-        test_pos = self.board.adjacent_spaces(orig_pos, directional=True)[direction]
+        test_pos = self.board.adjacent_coords(orig_pos, directional=True)[direction]
         expected_floodfill = [(4,4)]
 
         # Act
@@ -169,7 +169,7 @@ class BoardFloodfillTest(unittest.TestCase):
         # Arrange
         orig_pos = (2, 3)
         direction = 'n'
-        test_pos = self.board.adjacent_spaces(orig_pos, directional=True)[direction]
+        test_pos = self.board.adjacent_coords(orig_pos, directional=True)[direction]
         expected_floodfill = [(3,3)]
 
         # Act
@@ -182,7 +182,7 @@ class BoardFloodfillTest(unittest.TestCase):
         # Arrange
         orig_pos = (5, 4)
         direction = 's'
-        test_pos = self.board.adjacent_spaces(orig_pos, directional=True)[direction]
+        test_pos = self.board.adjacent_coords(orig_pos, directional=True)[direction]
         expected_floodfill = [(4,4)]
 
         # Act
@@ -195,7 +195,7 @@ class BoardFloodfillTest(unittest.TestCase):
         # Arrange
         orig_pos = (3, 2)
         direction = 'e'
-        test_pos = self.board.adjacent_spaces(orig_pos, directional=True)[direction]
+        test_pos = self.board.adjacent_coords(orig_pos, directional=True)[direction]
         expected_floodfill = [(3,3)]
 
         # Act
@@ -208,7 +208,7 @@ class BoardFloodfillTest(unittest.TestCase):
         # Arrange
         orig_pos = (2, 3)
         direction = 'n'
-        test_pos = self.board.adjacent_spaces(orig_pos, directional=True)[direction]
+        test_pos = self.board.adjacent_coords(orig_pos, directional=True)[direction]
         expected_floodfill = False
 
         # Act
@@ -221,7 +221,7 @@ class BoardFloodfillTest(unittest.TestCase):
         # Arrange
         orig_pos = (2, 4)
         direction = 'n'
-        test_pos = self.board.adjacent_spaces(orig_pos, directional=True)[direction]
+        test_pos = self.board.adjacent_coords(orig_pos, directional=True)[direction]
         expected_floodfill = False
 
         # Act
@@ -239,7 +239,7 @@ class BoardFloodfillTest(unittest.TestCase):
         
         orig_pos = (7,3)
         direction = 's'
-        test_pos = self.board.adjacent_spaces(orig_pos, directional=True)[direction]
+        test_pos = self.board.adjacent_coords(orig_pos, directional=True)[direction]
         expected_floodfill = [(6,3), (5,3), (4,3), (3,3), (2,3)]
 
         # Act
@@ -255,7 +255,7 @@ class BoardFloodfillTest(unittest.TestCase):
         
         orig_pos = (4, 1)
         direction = 'e'
-        test_pos = self.board.adjacent_spaces(orig_pos, directional=True)[direction]
+        test_pos = self.board.adjacent_coords(orig_pos, directional=True)[direction]
         expected_floodfill = [(4,2),(4,3)]
 
         # Act
@@ -346,7 +346,7 @@ class BoardMoveTest(unittest.TestCase):
 def run_tests():
     # Run only the tests in the specified classes
 
-    test_classes_to_run = [BoardDefaultTest, BoardAdjacentTest, BoardFloodfillTest, BoardMoveTest]
+    test_classes_to_run = [BoardFloodfillTest] #[BoardDefaultTest, BoardAdjacentTest, BoardFloodfillTest, BoardMoveTest]
 
     loader = unittest.TestLoader()
 

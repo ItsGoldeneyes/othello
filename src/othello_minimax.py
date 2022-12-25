@@ -12,7 +12,7 @@ class Minimax:
         self.player = player
         
         best_move = [(0, 0), -(math.inf)]
-        for move in board.get_possible_moves(player):
+        for move in board.get_actual_moves(player):
             _, val = self.minimax(board, player, depth=4)
             
             if val > best_move[1]:
@@ -65,7 +65,9 @@ class Minimax:
         
         
     def minimax(self, board, player, depth=2, alpha=-math.inf, beta=math.inf):
-        moves = board.get_possible_moves(player)
+        moves = board.get_actual_moves(player)
+        # Move ordering here
+        
         if not moves:
             return None, self.evaluate(board)
         
