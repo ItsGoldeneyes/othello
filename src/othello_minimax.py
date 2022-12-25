@@ -85,9 +85,9 @@ class Minimax:
         static_weights = self.evaluate_static_weights(board)
         
         score += 0.5*piece_count
-        score += 2*mobility
-        score += 5*corners
-        score += 5*static_weights
+        score += 1.15*mobility
+        score += 1.5*corners
+        score += 1.25*static_weights
         
         return score
         
