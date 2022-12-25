@@ -110,6 +110,12 @@ class OthelloBoard():
         adjacent = self.adjacent_coords(move)
         zeros = [coord for coord in adjacent if self.board[coord[0]][coord[1]] == 0]
         return zeros
+    
+    def count_zeros(self, move):
+        '''
+        Count the number of adjacent empty spaces
+        '''
+        return len(self.adjacent_zeros(move))
         
     
     def check_flips(self, move, player):

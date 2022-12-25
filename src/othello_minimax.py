@@ -1,4 +1,5 @@
 import math
+import time
 
 
 class Minimax:
@@ -8,6 +9,7 @@ class Minimax:
     
     
     def move(self, board, player):
+        time_start = time.perf_counter()
         self.board = board
         self.player = player
         
@@ -17,6 +19,9 @@ class Minimax:
             
             if val > best_move[1]:
                 best_move = [move, val]
+                
+        time_stop = time.perf_counter()
+        print(f'Minimax took: {time_stop - time_start}s')
         return best_move[0]
     
 
@@ -91,10 +96,17 @@ class Minimax:
         
         return score
         
-        
-    def minimax(self, board, player, depth=2, alpha=-math.inf, beta=math.inf):
+    def order_moves(self, board, player):
         moves = board.get_actual_moves(player)
-        # Move ordering here
+        
+        moves.sort(key=board.count_zeros)
+        
+        return moves
+        
+    
+    def minimax(self, board, player, depth=2, alpha=-math.inf, beta=math.inf):
+        moves = self.order_moves(board, player)
+        
         
         if not moves:
             return None, self.evaluate(board)
