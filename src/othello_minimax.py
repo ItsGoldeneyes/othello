@@ -7,7 +7,6 @@ class Minimax:
     def __init__(self):
         pass
     
-    
     def move(self, board, player):
         time_start = time.perf_counter()
         self.board = board
@@ -21,16 +20,14 @@ class Minimax:
                 best_move = [move, val]
                 
         time_stop = time.perf_counter()
-        # print(f'Minimax took: {time_stop - time_start}s')
+        print(f'Minimax took: {time_stop - time_start}s')
         return best_move[0]
     
-
     def evaluate_piece_count(self, board):
         piece_count = board.count_pieces(self.player)
         opp_piece_count = board.count_pieces((self.player%2)+1)
         
         return 100*(piece_count - opp_piece_count)/(piece_count + opp_piece_count)
-        
     
     def evaluate_mobility(self, board):
         mobility = len(board.get_potential_moves(self.player))
@@ -40,7 +37,6 @@ class Minimax:
             return 0
         
         return 100*(mobility - opp_mobility)/(mobility + opp_mobility)
-        
         
     def evaluate_corners(self, board):
         corner_count = board.board[0][0]==self.player + \
@@ -56,7 +52,6 @@ class Minimax:
             return 0
         
         return 100*(corner_count - opp_corner_count)/(corner_count + opp_corner_count)
-        
         
     def evaluate_static_weights(self, board):
         static_weights = [[4,  -3,  2,  2,  2,  2, -3,  4],
@@ -80,7 +75,6 @@ class Minimax:
         
         return total_weight-opp_total_weight
         
-        
     def evaluate(self, board):
         score = 0
         
@@ -89,7 +83,7 @@ class Minimax:
         corners = self.evaluate_corners(board)
         static_weights = self.evaluate_static_weights(board)
         
-        # score += 0.5*piece_count
+        score += 0.5*piece_count
         score += 1.15*mobility
         score += 1.5*corners
         score += 1.25*static_weights
@@ -103,10 +97,9 @@ class Minimax:
         
         return moves
         
-    
     def minimax(self, board, player, depth=2, alpha=-math.inf, beta=math.inf):
-        moves = self.order_moves(board, player)
         
+        moves = self.order_moves(board, player)
         
         if not moves:
             return None, self.evaluate(board)

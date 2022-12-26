@@ -8,22 +8,18 @@ class OthelloGame():
         self.stalemate_timer = 0
         self.debug = debug
 
-
     def show(self):
         print(self.board)
-
 
     def reset(self):
         self.board = OthelloBoard(debug=self.debug)
         self.winner = False
         self.stalemate_timer = 0
     
-    
     def extract_pos(self, pos_str):
         '''
         Get position from input using regex
         '''
-        
         first = re.search(r"\d", pos_str)
         if first == None:
             raise ValueError("Input contains no numbers")
@@ -34,7 +30,6 @@ class OthelloGame():
         
         return (int(second.group())-1, int(first.group())-1)
     
-    
     def get_info(self):
         '''
         Returns information about the game for NEAT to use
@@ -42,26 +37,23 @@ class OthelloGame():
         output = []
         for line in self.board.get_board():
             for space in line:
-                output.append(space)
-                
+                output.append(space)   
         return output
-        
             
     def turn(self, player, pos= False):
         '''
         Takes a turn for a given player
-        If pos is given, it will attempt to move there, otherwise it will ask for input
+        If pos is given, it will attempt to move there, otherwise it will ask for user input
         '''
         assert player == 1 or player == 2
         
+        # Check for stalemate
         if self.board.check_stalemate(player):
             self.stalemate_timer += 1
-            
             if self.stalemate_timer >= 2:
                 self.winner = True
                 if self.debug:
                     print("Game is a stalemate!")
-                
             return True
         
         # If not stalemate, reset timer
@@ -75,6 +67,7 @@ class OthelloGame():
                 
         else:
             valid = False
+            # While the move is invalid, ask for input
             while not valid:
                 pos_input = input(f"Where would player {player} like to move?")
                 pos_tuple = False
@@ -89,7 +82,8 @@ class OthelloGame():
                     print("Invalid move!")
                     
             self.board.move(pos_tuple, player)
-            
+        
+        # Check for winner
         if self.board.check_winner():
             if type(self.board.check_winner()) == int:
                 if self.debug:
@@ -99,9 +93,8 @@ class OthelloGame():
                 self.winner = True
                 if self.debug:
                     print('Game is a draw!')
-                    
+
         if self.debug:
             self.show()
-                
             
         return True

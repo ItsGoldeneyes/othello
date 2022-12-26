@@ -7,7 +7,6 @@ class Othello:
     def __init__(self):
         self.game = OthelloGame()
         
-        
     def play(self):
         self.game.reset()
         player = 1
@@ -17,9 +16,7 @@ class Othello:
             self.game.turn(player)
             self.game.show()
             player = (player%2)+1
-            
         return self.game.winner
-
 
     def play_minimax(self):
         self.game.reset()
@@ -38,7 +35,6 @@ class Othello:
                 self.game.show()
                 
             player = (player%2)+1
-            
         return self.game.winner
     
     def play_minimax_v_minimax(self):
@@ -54,7 +50,6 @@ class Othello:
             self.game.show()
                 
             player = (player%2)+1
-            
         return self.game.winner
 
 if __name__ == "__main__":

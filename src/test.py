@@ -346,7 +346,7 @@ class BoardMoveTest(unittest.TestCase):
 def run_tests():
     # Run only the tests in the specified classes
 
-    test_classes_to_run = [BoardFloodfillTest] #[BoardDefaultTest, BoardAdjacentTest, BoardFloodfillTest, BoardMoveTest]
+    test_classes_to_run = [BoardDefaultTest, BoardAdjacentTest, BoardFloodfillTest, BoardMoveTest]
 
     loader = unittest.TestLoader()
 

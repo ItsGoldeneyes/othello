@@ -10,12 +10,10 @@ class OthelloBoard():
         self.debug = debug
         self.flip_count = [0, 0]
         
-        
         self.board[size//2][size//2] = 1
         self.board[(size//2)-1][(size//2)-1] = 1
         self.board[(size//2)-1][size//2] = 2
         self.board[size//2][(size//2)-1] = 2
-        
     
     def __str__(self):
         '''
@@ -37,21 +35,17 @@ class OthelloBoard():
             return_val += "\n"
         return return_val
     
-    
     def get_board(self):
         return self.board
     
-    
     def copy(self):
         return OthelloBoard(board = [row[:] for row in self.board])
-        
     
     def get_flip_count(self, player):
         if player == 1:
             return self.flip_count[0]
         elif player == 2:
-            return self.flip_count[1]
-               
+            return self.flip_count[1]      
     
     def count_pieces(self, player):
         '''
@@ -64,7 +58,6 @@ class OthelloBoard():
                     count += 1
         return count
     
-        
     def get_actual_moves(self, player):
         '''
         Check floodfill spaces of all possible moves
@@ -77,10 +70,6 @@ class OthelloBoard():
                 if self.check_move((x,y), player):
                     actual_moves.append((x,y))
         
-        # actual_moves = [[(x,y) for y in range(len(self.board)) 
-        #                    if self.check_move((x,y), player)] 
-        #                   for x in range(len(self.board))]
-        
         self.debug = True
         return actual_moves
     
@@ -89,7 +78,6 @@ class OthelloBoard():
         Return spaces with adjacent empty space
         Potential spaces could be contested in the future
         '''
-        
         self.debug = False
         potential_moves = []
         for x in range(len(self.board)):
@@ -101,7 +89,6 @@ class OthelloBoard():
         
         self.debug = True
         return potential_moves
-    
     
     def adjacent_zeros(self, move):
         '''
@@ -116,7 +103,6 @@ class OthelloBoard():
         Count the number of adjacent empty spaces
         '''
         return len(self.adjacent_zeros(move))
-        
     
     def check_flips(self, move, player):
         '''
@@ -129,9 +115,7 @@ class OthelloBoard():
             potential_flipped = self.floodfill(adjacent[direction], player, direction)
             if potential_flipped:
                 flips.extend(potential_flipped)
-        
         return flips
-    
     
     def check_move(self, move, player):
         '''
@@ -163,9 +147,7 @@ class OthelloBoard():
             # if self.debug:
             #     print("Not capturing enemy")
             return False
-            
         return True
-    
     
     def check_winner(self):
         '''
@@ -187,7 +169,6 @@ class OthelloBoard():
         else:
             self.winner = True
             return True
-        
     
     def check_stalemate(self, player):
         '''
@@ -196,7 +177,6 @@ class OthelloBoard():
         player_moves = self.get_actual_moves(player)
         if len(player_moves) > 0:
             return False
-        
         return True
     
     def adjacent_coords(self, pos, direction=False, directional=False):
@@ -265,7 +245,6 @@ class OthelloBoard():
                 adjacent.append((pos[0], pos[1]+1))
             if w:
                 adjacent.append((pos[0], pos[1]-1))
-                
         return adjacent
     
     def adjacent_spaces(self, pos, direction=False, directional=False):
@@ -333,7 +312,6 @@ class OthelloBoard():
                 adjacent.append(self.board[pos[0], pos[1]+1])
             if w:
                 adjacent.append(self.board[pos[0], pos[1]-1])
-                
         return adjacent
     
     def safe_pieces(self, player):
@@ -349,7 +327,6 @@ class OthelloBoard():
                     if self.check_move((x,y), player):
                         safe_pieces.append((x,y))
         return safe_pieces
-    
     
     def floodfill(self, move, player, direction, count=0, test=False):
         '''
@@ -388,12 +365,10 @@ class OthelloBoard():
             return_val.extend(next_space)
         return return_val
     
-    
     def undo_move(self, state):
         
         self.board = state[0]
         self.flip_count = state[1]
-        
         
     def move(self, move, player):
         '''
@@ -411,6 +386,5 @@ class OthelloBoard():
         
         for space in potential_flips:
             self.board[space[0]][space[1]] = player
-            
         
         return state
