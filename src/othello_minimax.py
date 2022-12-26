@@ -14,7 +14,6 @@ class Minimax:
         '''
         Main function for the minimax algorithm
         '''
-        
         time_start = time.perf_counter()
         self.board = board
         self.player = player
@@ -74,7 +73,6 @@ class Minimax:
         An evaluation function that uses static weights to evaluate the board.
         Weights are based on flip frequency
         '''
-        
         static_weights = [[4,  -3,  2,  2,  2,  2, -3,  4],
                           [-3, -4, -1, -1, -1, -1, -4, -3],
                           [2,  -1,  1,  0,  0,  1, -1,  2],
@@ -101,7 +99,6 @@ class Minimax:
         Evaluation function that returns a score for the current board state
         Uses methods to evaluate piece count, mobility, corner occupancy, and static weights
         '''
-        
         score = 0
         
         piece_count = self.evaluate_piece_count(board)
