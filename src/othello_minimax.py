@@ -3,7 +3,10 @@ import math
 import time
 
 class Minimax:
-    
+    '''
+    Minimax algorithm for Othello
+    Run with the move function
+    '''
     def __init__(self):
         pass
     

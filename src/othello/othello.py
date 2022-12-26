@@ -2,6 +2,11 @@ from othello.othello_board import OthelloBoard
 import re
 
 class OthelloGame():
+    '''
+    Othello game class
+    Creates a game of Othello based on the OthelloBoard class
+    Iterate through turns using turn function
+    '''
     def __init__(self, debug=False):
         self.board = OthelloBoard(debug=debug)
         self.winner = False
@@ -19,6 +24,8 @@ class OthelloGame():
     def extract_pos(self, pos_str):
         '''
         Get position from input using regex
+        Converts input to tuple of (row, col) indexed from 0
+        From user input assumed to be indexed from 1
         '''
         first = re.search(r"\d", pos_str)
         if first == None:

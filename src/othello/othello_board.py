@@ -1,6 +1,9 @@
 
 class OthelloBoard():
-    
+    '''
+    Base for an Othello game
+    Has many useful functions for evaluating the gamestate
+    '''
     def __init__(self, size=8, debug=False, board=False):
         if board:
             self.board = board
@@ -319,6 +322,8 @@ class OthelloBoard():
         Returns a list of pieces that are safe from capture
         
         TODO: Edge detection, area control
+        
+        NOT WORKING
         '''
         safe_pieces = []
         for x in range(len(self.board)):
@@ -366,13 +371,16 @@ class OthelloBoard():
         return return_val
     
     def undo_move(self, state):
-        
+        '''
+        Undoes move based on state variable returned from move function
+        '''
         self.board = state[0]
         self.flip_count = state[1]
         
     def move(self, move, player):
         '''
         Puts player piece on move, captures enemy pieces
+        Returns state variable to be used for undo_move
         '''
         assert type(move) == tuple and len(move) == 2, "Position must be tuple of length 2"
         assert 0 <= move[0] <= 7, "X position out of bounds (0<x<7)"
