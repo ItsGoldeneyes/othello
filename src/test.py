@@ -1,7 +1,5 @@
-import unittest
-
 from othello.othello import OthelloBoard, OthelloGame
-
+import unittest
 
 class BoardDefaultTest(unittest.TestCase):
     def setUp(self):

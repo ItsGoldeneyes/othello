@@ -29,16 +29,6 @@ class OthelloGame():
             raise ValueError("Input contains only one number")
         
         return (int(second.group())-1, int(first.group())-1)
-    
-    def get_info(self):
-        '''
-        Returns information about the game for NEAT to use
-        '''
-        output = []
-        for line in self.board.get_board():
-            for space in line:
-                output.append(space)   
-        return output
             
     def turn(self, player, pos= False):
         '''

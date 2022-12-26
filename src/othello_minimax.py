@@ -1,6 +1,6 @@
+from functools import partial
 import math
 import time
-
 
 class Minimax:
     
@@ -8,6 +8,10 @@ class Minimax:
         pass
     
     def move(self, board, player):
+        '''
+        Main function for the minimax algorithm
+        '''
+        
         time_start = time.perf_counter()
         self.board = board
         self.player = player
@@ -24,12 +28,18 @@ class Minimax:
         return best_move[0]
     
     def evaluate_piece_count(self, board):
+        '''
+        An evaluation function based on the number of pieces for each player
+        '''
         piece_count = board.count_pieces(self.player)
         opp_piece_count = board.count_pieces((self.player%2)+1)
         
         return 100*(piece_count - opp_piece_count)/(piece_count + opp_piece_count)
     
     def evaluate_mobility(self, board):
+        '''
+        An evaluation function based on the number of potential moves for each player
+        '''
         mobility = len(board.get_potential_moves(self.player))
         opp_mobility = len(board.get_potential_moves((self.player%2)+1))
         
@@ -39,6 +49,9 @@ class Minimax:
         return 100*(mobility - opp_mobility)/(mobility + opp_mobility)
         
     def evaluate_corners(self, board):
+        '''
+        An evaluation function based on the number of controlled corners for each player
+        '''
         corner_count = board.board[0][0]==self.player + \
                         board.board[0][7]==self.player + \
                         board.board[7][0]==self.player + \
@@ -54,6 +67,11 @@ class Minimax:
         return 100*(corner_count - opp_corner_count)/(corner_count + opp_corner_count)
         
     def evaluate_static_weights(self, board):
+        '''
+        An evaluation function that uses static weights to evaluate the board.
+        Weights are based on flip frequency
+        '''
+        
         static_weights = [[4,  -3,  2,  2,  2,  2, -3,  4],
                           [-3, -4, -1, -1, -1, -1, -4, -3],
                           [2,  -1,  1,  0,  0,  1, -1,  2],
@@ -76,6 +94,11 @@ class Minimax:
         return total_weight-opp_total_weight
         
     def evaluate(self, board):
+        '''
+        Evaluation function that returns a score for the current board state
+        Uses methods to evaluate piece count, mobility, corner occupancy, and static weights
+        '''
+        
         score = 0
         
         piece_count = self.evaluate_piece_count(board)
@@ -91,14 +114,23 @@ class Minimax:
         return score
         
     def order_moves(self, board, player):
+        '''
+        A move ordering function that orders moves by the number of adjacent empty spaces
+        '''
         moves = board.get_actual_moves(player)
+        moves.sort(key=board.count_values)
         
-        moves.sort(key=board.count_zeros)
+        # Code for enemy move ordering
+        # moves.sort(key=partial(board.count_values, val=(player%2)+1))
         
         return moves
         
     def minimax(self, board, player, depth=2, alpha=-math.inf, beta=math.inf):
-        
+        '''
+        A recursive minimax algorithm with alpha-beta pruning.
+        Implements a static evaluation function and move ordering
+        Returns the best move and the value of the board state
+        '''
         moves = self.order_moves(board, player)
         
         if not moves:

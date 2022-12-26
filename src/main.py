@@ -2,7 +2,6 @@ from othello.othello import OthelloGame
 import othello_minimax as om
 import time
 
-
 class Othello:
     def __init__(self):
         self.game = OthelloGame()
